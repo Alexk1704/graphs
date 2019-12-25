@@ -6,10 +6,14 @@ public class Vertex {
     private int flag;
     private int distance;
 
+    public Vertex(Vertex copy){
+        this(copy.id);
+    }
+
     public Vertex(final int id){
         this.id = id;
         this.flag = 0;
-        this.distance = -1;
+        this.distance = 0; // well, should be infinity...
     }
 
     public void setId(final int id){

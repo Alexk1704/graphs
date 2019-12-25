@@ -107,14 +107,27 @@ public class App {
         System.out.println("\n\nDone printing data structures...");
 
         /* ALGO SECTION */
+
+        // BFS
+        BFSTreeNode<Vertex> searchedVertex; // for tree search method
+
+        // UNDIRECTED
         BreadthFirstSearch bfsUndir = new BreadthFirstSearch(adjListUnDir.exposeAdjList());
-        BFSTreeNode<Vertex> rootNode = bfsUndir.initBfsTree(1);
+        BFSTreeNode<Vertex> rootNodeUndir = bfsUndir.initBfsTree(1); // vertex with id: 1 is source/root
         bfsUndir.processList();
-        //bfsUndir.dumpTree(rootNode);
-        //bfsUndir.shortestPath(1, 5);
+
+        searchedVertex = bfsUndir.search(rootNodeUndir, 8); // search tree
+        bfsUndir.shortestPath(rootNodeUndir, searchedVertex); // look for BFS tree node vertex with id 8!
+
+        // DIRECTED
+        BreadthFirstSearch bfsDir = new BreadthFirstSearch(adjListDir.exposeAdjList());
+        BFSTreeNode<Vertex> rootNodeDir = bfsDir.initBfsTree(4);
+        bfsDir.processList();
+
+        searchedVertex = bfsDir.search(rootNodeDir, 8); // search tree
+        bfsUndir.shortestPath(rootNodeDir, searchedVertex);
 
         logger.trace("Quiting application...");
-
     }
 }
 

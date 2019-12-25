@@ -32,7 +32,7 @@ public class AdjacencyList {
             if(adjList[to.getId()] == null) {
                 adjList[to.getId()] = new LinkedList<Vertex>();
             }
-            if(!e.isDirected()){ // Edge undirected, add adjacent vertices for bot
+            if(!e.isDirected()){ // Edge undirected, add adjacent vertices for both
                 adjList[from.getId()].add(to);
                 adjList[to.getId()].add(from);
             } else { // Edge directed, so only create for one direction

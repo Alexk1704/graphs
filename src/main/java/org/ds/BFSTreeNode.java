@@ -20,7 +20,7 @@ public class BFSTreeNode<T> {
         this.data = data;
     }
 
-    public BFSTreeNode<T> getParent(BFSTreeNode<T> node){
+    public BFSTreeNode<T> getParent(){
         return this.parent;
     }
 

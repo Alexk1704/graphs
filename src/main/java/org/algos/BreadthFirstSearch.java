@@ -47,11 +47,9 @@ public class BreadthFirstSearch {
         if(s_id < 1 || s_id > adjList.length+1){
             System.err.println("Check source node index!");
         } else {
-            source = adjList[1].getFirst();
+            source = new Vertex(s_id); // create a vertex with id as passed
         }
         root = new BFSTreeNode<>(source); // create root of tree
-        // set to white, distance already 0
-        source.setFlag(1);
         workingQueue = new Stack();
         workingQueue.push(root); // push to working queue
 
@@ -84,15 +82,21 @@ public class BreadthFirstSearch {
         }
     }
 
-    public void dumpTree(BFSTreeNode<Vertex> node){
-        System.out.println(node.getData().getId());
-        if(node.getChildCount() != 0) {
-            ArrayList<BFSTreeNode<Vertex>> cl = node.getChildren();
-            for (BFSTreeNode<Vertex> bv : cl) {
-                dumpTree(bv);
-            }
+    public BFSTreeNode<Vertex> search(BFSTreeNode<Vertex> s, int index){
+        if (s.getData().getId() == index) { // index same as source, done
+            return s;
         }
-
+        else if(s.getChildCount() != 0) { // has children
+            ArrayList<BFSTreeNode<Vertex>> childList = s.getChildren();
+            BFSTreeNode<Vertex> result = null;
+            for(int i = 0; i < childList.size(); i++){ // loop through source children
+                result = search(childList.get(i), index);
+                if(result != null)
+                    return result;
+            }
+            return result;
+        }
+        return null;
     }
 
     /* s: source node, v: vertex we want to reach
@@ -103,8 +107,15 @@ public class BreadthFirstSearch {
      * else printPath(s, v.pred)
      *  print v
      */
-    public void shortestPath(BFSTreeNode<Vertex> s, int v){
-
+    // FIXME: Shortest path is actually NOT using shortest path if node has multiple parents
+    public void shortestPath(BFSTreeNode<Vertex> s, BFSTreeNode<Vertex> v){
+        if(v == s){
+            System.out.println("Done with path to vertex: " + s.getData().getId());
+        } else if(v.getParent() == null) { // no predecessor
+            System.out.println("There is no path between v & s.");
+        } else {
+            shortestPath(s, v.getParent());
+            System.out.println("Node (distance " + v.getData().getDistance() + "): " + v.getData().getId());
+        }
     }
-
 }
