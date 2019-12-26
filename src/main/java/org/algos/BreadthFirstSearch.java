@@ -1,10 +1,10 @@
 package org.algos;
 
 
-/* BFS
+/* Breadth First Search
  * Start with a source node and search for all reachable nodes (layer wise)
  * Calculate a BFS tree and distances (n nodes) of source
- * Useful for shortest path algorithms (navigation systems, routing algos, look for something already near
+ * Useful for shortest path algorithms (navigation systems, routing algorithms, -> look for something already near
  * Let Graph G = (V,E) represented as an adjacency list
  * Each node u € V has three attributes:
  *      * u.color € {white,black} for not visited or visited
@@ -13,9 +13,9 @@ package org.algos;
  *
  * FIFO queue Q: O(n) linear, constant depends on node count O(V)
  * Queue manages unprocessed nodes/edges
- * Worklist algorithm is a management structure that manages when the algorithm is done.
+ * A work list algorithm is a management structure that manages when the algorithm is done.
  * Overall runtime is O(V+E) but E grows larger than V!
- * */
+ */
 
 import org.ds.AdjacencyList;
 import org.ds.Vertex;
@@ -90,11 +90,10 @@ public class BreadthFirstSearch {
             ArrayList<BFSTreeNode<Vertex>> childList = s.getChildren();
             BFSTreeNode<Vertex> result = null;
             for(int i = 0; i < childList.size(); i++){ // loop through source children
-                result = search(childList.get(i), index);
+                result = search(childList.get(i), index); // recursive call
                 if(result != null)
-                    return result;
+                    return result; // if we found the node, return it!
             }
-            return result;
         }
         return null;
     }
@@ -107,7 +106,7 @@ public class BreadthFirstSearch {
      * else printPath(s, v.pred)
      *  print v
      */
-    // FIXME: Shortest path is actually NOT using shortest path if node has multiple parents
+    // FIXME: Shortest path is actually NOT using shortest path if node has multiple parents,
     public void shortestPath(BFSTreeNode<Vertex> s, BFSTreeNode<Vertex> v){
         if(v == s){
             System.out.println("Done with path to vertex: " + s.getData().getId());

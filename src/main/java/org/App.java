@@ -19,19 +19,18 @@ public class App {
     private static Reader reader;
 
     public static void main( String[] args ) throws IOException {
-        // Set up simple config that logs on console
-        logger.trace("Starting application..");
+        logger.trace("Starting application.."); // Set up simple config that logs on console
 
         reader = new Reader();
         EdgeList edgeListDir = reader.readFile(args, true);
-        EdgeList edgeListUnDir = reader.readFile(args, false);
+        EdgeList edgeList = reader.readFile(args, false);
 
-        // print .png of both graph versions
+        /* print .png of both graph versions via gViz */
         GraphViz gViz = new GraphViz();
         gViz.printGraph("graph_dir", edgeListDir, true);
-        gViz.printGraph("graph_undir", edgeListUnDir, false);
+        gViz.printGraph("graph_undir", edgeList, false);
 
-        // EdgeList as ArrayList of edge objects
+        // edge list as ArrayList of edge objects
         ArrayList<Edge> elDir = edgeListDir.returnEdgeList();
 
         System.out.println("\nPrinting Edge List...");
@@ -41,59 +40,60 @@ public class App {
                     + "v" + e.getFromV().getId() + " -" + e.getWeight() + "-> " + "v" + e.getToV().getId());
         }
 
+        /* Print DOT format of edge list (graph & digraph) */
         System.out.println("\nPrinting DOT format...");
-        // Print DOT formats of EdgeList (graph & digraph)
         System.out.println(edgeListDir.convertDOT(true));
-        System.out.println(edgeListUnDir.convertDOT(false));
+        System.out.println(edgeList.convertDOT(false));
 
-        // From this form begin to convert into other representations
+        /* Conversion to different representations */
+
         // INCIDENCE MATRIX
-        IncidenceMatrix imat = new IncidenceMatrix(edgeListUnDir);
-        int[][] iMat = imat.exposeMat();
+        IncidenceMatrix iMatrix = new IncidenceMatrix(edgeList);
+        int[][] iMat = iMatrix.exposeMat();
 
         System.out.println("\nPrinting Incidence Matrix...");
 
         String colIndexes = "";
-        for(int i = 1; i < imat.getColSize(); i++){
+        for(int i = 1; i < iMatrix.getColSize(); i++){
             colIndexes = colIndexes + "e" + i + "\t";
         }
         System.out.println("\t" + colIndexes);
 
-        for(int i = 1; i < imat.getRowSize(); i++){
+        for(int i = 1; i < iMatrix.getRowSize(); i++){
             String colValues = "";
-            for(int j = 1; j < imat.getColSize(); j++){
+            for(int j = 1; j < iMatrix.getColSize(); j++){
                 colValues = colValues + iMat[i][j] + "\t";
             }
             System.out.println("v" + i + "\t" + colValues);
         }
 
         // ADJACENCY MATRIX
-        AdjacencyMatrix amat = new AdjacencyMatrix(edgeListUnDir);
-        int[][] aMat = amat.exposeMat();
+        AdjacencyMatrix aMatrix = new AdjacencyMatrix(edgeList);
+        int[][] aMat = aMatrix.exposeMat();
 
         System.out.println("\nPrinting Adjacency Matrix...");
         colIndexes = "";
-        for(int i = 1; i < amat.getColSize(); i++){
+        for(int i = 1; i < aMatrix.getColSize(); i++){
             colIndexes = colIndexes + "v" + i + "\t";
         }
         System.out.println("\t" + colIndexes);
 
-        for(int i = 1; i < amat.getRowSize(); i++){
+        for(int i = 1; i < aMatrix.getRowSize(); i++){
             String colValues = "";
-            for(int j = 1; j < amat.getColSize(); j++){
+            for(int j = 1; j < aMatrix.getColSize(); j++){
                 colValues = colValues + aMat[i][j] + "\t";
             }
             System.out.println("v" + i + "\t" + colValues);
         }
 
         // ADJACENCY LIST
-        AdjacencyList adjListUnDir = new AdjacencyList(edgeListUnDir);
+        AdjacencyList adjList = new AdjacencyList(edgeList);
         AdjacencyList adjListDir = new AdjacencyList(edgeListDir);
 
         System.out.println("\nPrinting Adjacency List (undirected)...");
-        for(int i = 1; i < adjListUnDir.getDimension(); i++){
+        for(int i = 1; i < adjList.getDimension(); i++){
             System.out.print("\n[V" + i + "]: ");
-            for(Vertex v: adjListUnDir.exposeAdjList()[i]) {
+            for(Vertex v: adjList.exposeAdjList()[i]) {
                 System.out.print("V" + v.getId() + "->");
             }
         }
@@ -106,26 +106,30 @@ public class App {
         }
         System.out.println("\n\nDone printing data structures...");
 
-        /* ALGO SECTION */
-
-        // BFS
+        /* ALGORITHM SECTION */
+        /* BREADTH-FIRST-SEARCH */
         BFSTreeNode<Vertex> searchedVertex; // for tree search method
 
-        // UNDIRECTED
-        BreadthFirstSearch bfsUndir = new BreadthFirstSearch(adjListUnDir.exposeAdjList());
-        BFSTreeNode<Vertex> rootNodeUndir = bfsUndir.initBfsTree(1); // vertex with id: 1 is source/root
-        bfsUndir.processList();
+        BreadthFirstSearch bfs = new BreadthFirstSearch(adjList.exposeAdjList()); // UNDIRECTED
+        BFSTreeNode<Vertex> bfsRootNode = bfs.initBfsTree(1); // vertex with id: 1 is source/root
+        bfs.processList();
 
-        searchedVertex = bfsUndir.search(rootNodeUndir, 8); // search tree
-        bfsUndir.shortestPath(rootNodeUndir, searchedVertex); // look for BFS tree node vertex with id 8!
+        searchedVertex = bfs.search(bfsRootNode, 5); // search tree for selected vertex id
+        bfs.shortestPath(bfsRootNode, searchedVertex); // look for BFS tree node vertex with id 8!
 
-        // DIRECTED
-        BreadthFirstSearch bfsDir = new BreadthFirstSearch(adjListDir.exposeAdjList());
-        BFSTreeNode<Vertex> rootNodeDir = bfsDir.initBfsTree(4);
+        BreadthFirstSearch bfsDir = new BreadthFirstSearch(adjListDir.exposeAdjList()); // DIRECTED
+        BFSTreeNode<Vertex> bfsRootNodeDir = bfsDir.initBfsTree(1);
         bfsDir.processList();
 
-        searchedVertex = bfsDir.search(rootNodeDir, 8); // search tree
-        bfsUndir.shortestPath(rootNodeDir, searchedVertex);
+        searchedVertex = bfsDir.search(bfsRootNodeDir, 5);
+        bfs.shortestPath(bfsRootNodeDir, searchedVertex);
+
+        /* DEPTH-FIRST-SEARCH */
+
+        /* TOPOLOGICAL SORT */
+
+        /* SCC */
+
 
         logger.trace("Quiting application...");
     }
