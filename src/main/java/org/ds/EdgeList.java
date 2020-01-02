@@ -9,9 +9,15 @@ public class EdgeList {
     private ArrayList<Edge> edgeList;
     private int vertexCount;
     private String dotFormat;
+    private Vertex[] vertexArr;
 
-    public EdgeList() {
-        edgeList = new ArrayList<Edge>();
+    public EdgeList(int dims) {
+        this.vertexCount = dims;
+        this.edgeList = new ArrayList<Edge>();
+        this.vertexArr = new Vertex[dims+1];
+        for(int i = 1; i <= dims; i++){
+            vertexArr[i] = new Vertex(i, null);
+        }
     }
 
     public ArrayList<Edge> returnEdgeList(){
@@ -19,7 +25,14 @@ public class EdgeList {
     }
 
     public void addEdge(int first, int second, int id, boolean isDirected, Integer weight){
-        edgeList.add(new Edge(new Vertex(first), new Vertex(second), isDirected, id, weight));
+        edgeList.add(new Edge
+                (       vertexArr[first],
+                        vertexArr[second],
+                        isDirected,
+                        id,
+                        weight
+                )
+        );
     }
 
     public void addVertexCount(int count){
@@ -31,7 +44,7 @@ public class EdgeList {
     }
 
     public String convertDOT(boolean isDirected){
-        if(isDirected == true) {
+        if(isDirected) {
             dotFormat = "digraph {\n";
             for(int i = 0; i < edgeList.size(); i++){
                 dotFormat = dotFormat + "\t" + edgeList.get(i).getFromV().getId() + " -> "

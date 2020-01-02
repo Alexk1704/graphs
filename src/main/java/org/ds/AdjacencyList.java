@@ -24,13 +24,15 @@ public class AdjacencyList {
 
     private void createAdjList(ArrayList<Edge> el){
         for (Edge e: el) {
-            Vertex from = e.getFromV();
+            Vertex from = e.getFromV(); // create copies
             Vertex to = e.getToV();
             if(adjList[from.getId()] == null){
                 adjList[from.getId()] = new LinkedList<Vertex>();
+                adjList[from.getId()].add(from); // add it as first element because we need the vertex object later
             }
             if(adjList[to.getId()] == null) {
                 adjList[to.getId()] = new LinkedList<Vertex>();
+                adjList[to.getId()].add(to); // add it as first element because we need the vertex object later
             }
             if(!e.isDirected()){ // Edge undirected, add adjacent vertices for both
                 adjList[from.getId()].add(to);

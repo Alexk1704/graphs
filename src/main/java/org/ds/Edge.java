@@ -5,10 +5,10 @@ public class Edge {
     private Vertex fromVertex;
     private Vertex toVertex;
     private Integer weight;
-    private int id;
+    private Integer id;
     boolean isDirected;
 
-    public Edge(Vertex fromVertex, Vertex toVertex, boolean isDirected, int id, Integer weight) {
+    public Edge(Vertex fromVertex, Vertex toVertex, boolean isDirected, Integer id, Integer weight) {
         this.fromVertex = fromVertex;
         this.toVertex = toVertex;
         this.isDirected = isDirected;
@@ -46,7 +46,7 @@ public class Edge {
         return this.toVertex;
     }
 
-    public int getId(){
+    public Integer getId(){
         return this.id;
     }
 }

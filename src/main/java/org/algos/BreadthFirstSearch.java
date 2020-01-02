@@ -17,9 +17,7 @@ package org.algos;
  * Overall runtime is O(V+E) but E grows larger than V!
  */
 
-import org.ds.AdjacencyList;
 import org.ds.Vertex;
-import org.ds.BFSTreeNode;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,11 +28,11 @@ public class BreadthFirstSearch {
 
     Stack workingQueue;
     final LinkedList<Vertex>[] adjList;
-    BFSTreeNode<Vertex> root;
-    BFSTreeNode<Vertex> curr;
+    Integer distance;
 
     public BreadthFirstSearch(LinkedList<Vertex>[] adjList){
         this.adjList = adjList;
+        this.distance = 0;
     }
 
     /*
@@ -42,18 +40,19 @@ public class BreadthFirstSearch {
      * all other nodes: color white, distance infinity, pred null ptr
      * Init working queue Q (Stack), that only contains s at start
      */
-    public BFSTreeNode<Vertex> initBfsTree(int s_id){
+    public Vertex initTree(int s_id){
+        workingQueue = new Stack();
         Vertex source = null;
+        // skipping
         if(s_id < 1 || s_id > adjList.length+1){
             System.err.println("Check source node index!");
         } else {
-            source = new Vertex(s_id); // create a vertex with id as passed
+            source = adjList[s_id].getFirst();
+            source.setFlag(Vertex.Flag.BLACK); // set to black
+            source.setDistance(distance);
         }
-        root = new BFSTreeNode<>(source); // create root of tree
-        workingQueue = new Stack();
-        workingQueue.push(root); // push to working queue
-
-        return root;
+        workingQueue.push(source); // push to working queue
+        return source;
     }
 
     /*
@@ -65,32 +64,37 @@ public class BreadthFirstSearch {
      *         & add to working queue Q
      * O(E) for each Edge exactly once O(E)
      */
-    public void processList(){
+    public void buildTree(){
+        Vertex current;
         while(!workingQueue.empty()) {
-            curr = (BFSTreeNode<Vertex>) workingQueue.pop();
-            int vertexId = curr.getData().getId();
-            for (Vertex v : adjList[vertexId]) {
-                if (v.getFlag() == 1) {/* do nothing */}
+            current = (Vertex) workingQueue.pop();
+            for (Vertex v : adjList[current.getId()]) {
+                if (v.getFlag() == Vertex.Flag.BLACK) {/* do nothing */}
+                // also first vertex in linked list is vertex we are referencing by index, so skip it
                 else {
-                    v.setFlag(1); // set white
-                    v.setDistance(curr.getData().getDistance()+1); // increment distance
-                    BFSTreeNode<Vertex> newNode = new BFSTreeNode<Vertex>(v, curr); // Create TreeNode with predecessor
-                    curr.addChild(newNode); // add child to current node
-                    workingQueue.push(newNode); // add it to working queue
+                    v.setFlag(Vertex.Flag.BLACK); // visited neighbouring node
+                    adjList[v.getId()].getFirst().setFlag(Vertex.Flag.BLACK); // hax
+                    v.setDistance(current.getDistance()+1); // increment distance
+                    v.setParent(current);
+                    System.out.println("[V" + v.getId() + "]\t" + v +  "\tVISITED\n\t\tSETTING THE PARENT @[V"
+                            + current.getId() + "]\t" + current);
+                    current.addChild(v); // add v as child of current
+                    workingQueue.push(v); // add v to working queue
+                    System.out.println("[V" + v.getId() + "]\tADDED TO WORKING QUEUE");
                 }
             }
         }
     }
 
-    public BFSTreeNode<Vertex> search(BFSTreeNode<Vertex> s, int index){
-        if (s.getData().getId() == index) { // index same as source, done
-            return s;
+    public Vertex searchTree(Vertex source, int index){
+        if (source.getId() == index) { // index same as source, done
+            return source;
         }
-        else if(s.getChildCount() != 0) { // has children
-            ArrayList<BFSTreeNode<Vertex>> childList = s.getChildren();
-            BFSTreeNode<Vertex> result = null;
+        else if(source.getChildCount() != 0) { // has children
+            ArrayList<Vertex> childList = source.getChildren();
+            Vertex result;
             for(int i = 0; i < childList.size(); i++){ // loop through source children
-                result = search(childList.get(i), index); // recursive call
+                result = searchTree(childList.get(i), index); // recursive call
                 if(result != null)
                     return result; // if we found the node, return it!
             }
@@ -98,7 +102,8 @@ public class BreadthFirstSearch {
         return null;
     }
 
-    /* s: source node, v: vertex we want to reach
+    /* Shows a path from source node to vertex v
+     * s: source node, v: vertex we want to reach
      * if v == s
      *  print s
      * elseif v.pred == NIL
@@ -106,15 +111,15 @@ public class BreadthFirstSearch {
      * else printPath(s, v.pred)
      *  print v
      */
-    // FIXME: Shortest path is actually NOT using shortest path if node has multiple parents,
-    public void shortestPath(BFSTreeNode<Vertex> s, BFSTreeNode<Vertex> v){
+    // FIXME: Shortest path needs to compute and compare paths wenn a node has multiple parent
+    public void showPath(Vertex s, Vertex v){
         if(v == s){
-            System.out.println("Done with path to vertex: " + s.getData().getId());
+            System.out.println("\nPATH TO VERTEX: [" + s.getId() + "] DONE!");
         } else if(v.getParent() == null) { // no predecessor
-            System.out.println("There is no path between v & s.");
+            System.out.println("NO PATH BETWEEN s & v!");
         } else {
-            shortestPath(s, v.getParent());
-            System.out.println("Node (distance " + v.getData().getDistance() + "): " + v.getData().getId());
+            showPath(s, v.getParent());
+            System.out.println("\tV[" + v.getId() + "] (DISTANCE " + v.getDistance() + ")");
         }
     }
 }

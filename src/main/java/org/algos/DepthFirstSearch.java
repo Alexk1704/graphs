@@ -15,7 +15,7 @@ package org.algos;
  * DFS algorithm works for undirected and directed graphs
  * Run time O(V+E) for adjacency list representation
  *
- * Define a DFS forest G' = (V, E') with E' = {(v.pred, v) | v element of V and v.pred != null}
+ * Define a DFS forest G' = (V, E') with E' = {(v.pred, v) | v element of V and v.pred != null} -> Tree edges
  *
  * Edges in G can be classified:
  *      - Tree edges are edges in G' (traversed by algorithm)
@@ -29,17 +29,30 @@ package org.algos;
  *        e.g. for build tools, calculates order that fits the graph
  * */
 
-import org.ds.AdjacencyList;
+import org.ds.Vertex;
+
+import java.util.LinkedList;
 
 public class DepthFirstSearch {
 
-    public DepthFirstSearch(){
+    final LinkedList<Vertex>[] adjList;
+    Integer time;
+    LinkedList<Vertex> topSortList;
 
+    public DepthFirstSearch(LinkedList<Vertex>[] adjList){
+        this.adjList = adjList;
     }
 
-    // All nodes white (0), predecessor: NULL ptr, time var (global): 0
-    public void init(){
-
+    /* All nodes white (0), predecessor: NULL ptr, time var (global): 0 */
+    // FIXME: use method parameter for adjacency lists instead of saving it inside the object
+    public void depthSearch(){
+        // nodes already white, and predecessor is NULL by default
+        time = 0;
+        for(int i = 1; i < adjList.length; i++){
+            if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
+                visit(adjList[i], false);
+            }
+        }
     }
 
     /*
@@ -50,15 +63,37 @@ public class DepthFirstSearch {
      * After return of control, colour current node black
      * increment time and save finish time
      * Idea: do not program it recursively instead we could use a call stack, because sometimes it is more
-     * efficient then the runtime environment call stack of java.
+     * efficient than the runtime environment call stack of java.
      * The algorithm builds the tree from bottom up, we need to turn it to get our DFS forest
      */
-    public void visit(AdjacencyList adjList, int index){
+    // FIXME: rewrite with local heap stack instead of recursion
+    public void visit(LinkedList<Vertex> adj, boolean topSort) {
+        time = time + 1;
+        Vertex u = adj.getFirst();
+        u.setDiscoveryTime(time); // set discovery time for calling vertex
+        System.out.println("[V" + u.getId() + "]\tDISCOVERED ON STEP " + time);
+        u.setFlag(Vertex.Flag.GRAY); // set colour to GRAY (discovered)
+        for(int i = 0; i < adj.size(); i++){ // explore edge (u, v), skipe first since its u node
+            // skip first since its calling node
+            if(adj.get(i).getFlag() == Vertex.Flag.WHITE){ // adjacent vertex white?
+                adj.get(i).setParent(u); // set its parent
+                visit(adjList[adj.get(i).getId()], topSort); // recursive call
+            }
+        }
 
+        u.setFlag(Vertex.Flag.BLACK); // set to black after return of control
+        time = time + 1;
+        u.setFinishTime(time); // set finishing time
+        if(topSort) { topSortList.add(u); } // add to linked list if topological sort
+        System.out.println("[V" + u.getId() + "]\tFINISHED ON STEP " + time);
     }
 
     /* Topological sort of a DAG (directed, acyclic graph) is a sort of all nodes,
      * so that u comes before v, if there is an edge (u,v)
+     *
+     * Ordering of a graphs' vertices along a horizontal line so that all
+     * directed edges go from left to right.
+     *
      * All nodes are white, predecessor null, time = 0
      * For each white node call DFS visit(G,u)
      *
@@ -67,8 +102,24 @@ public class DepthFirstSearch {
      * 3. return that list
      * A directed graph G is acyclic exactly then when DFS gives us no back edges
      */
-    public void topSort(){
+    public LinkedList<Vertex> topSort(LinkedList<Vertex>[] adjList){
+        topSortList = new LinkedList<>();
+        time = 0;
+        for(int i = 1; i < adjList.length; i++){
+            if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
+                visit(adjList[i], true);
+            }
+        }
+        return topSortList;
+    }
 
+    public void printTopSort(){
+        System.out.println("\nTOPOLOGICAL SORT (DIGRAPH):\n");
+        for(Vertex v: this.topSortList){
+            System.out.println("V[" + v.getId() + "]\tDISCOVERY: "
+                    + v.getDiscoveryTime() + "\tFINISHED: "
+                    + v.getFinishTime());
+        }
     }
 
     /* SCC(G): takes transposed G

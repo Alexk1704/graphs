@@ -2,6 +2,7 @@ package org;
 
 
 import org.algos.BreadthFirstSearch;
+import org.algos.DepthFirstSearch;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.ds.*;
@@ -10,6 +11,7 @@ import org.io.Reader;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 public class App {
@@ -104,29 +106,35 @@ public class App {
                 System.out.print("V" + v.getId() + "->");
             }
         }
-        System.out.println("\n\nDone printing data structures...");
+        System.out.println("\n\nDone printing data structures...\n");
 
         /* ALGORITHM SECTION */
+        System.out.println("Starting algorithm section...");
+
         /* BREADTH-FIRST-SEARCH */
-        BFSTreeNode<Vertex> searchedVertex; // for tree search method
-
         BreadthFirstSearch bfs = new BreadthFirstSearch(adjList.exposeAdjList()); // UNDIRECTED
-        BFSTreeNode<Vertex> bfsRootNode = bfs.initBfsTree(1); // vertex with id: 1 is source/root
-        bfs.processList();
+        Vertex bfsRoot = bfs.initTree(1); // vertex with id: 1 is source/root
+        bfs.buildTree(); // builds BFS tree
+        bfs.showPath(bfsRoot, bfs.searchTree(bfsRoot, 2)); // shows the path, looks for vertex in BFS tree we specified
+        System.out.println("BUILDING BFS TREE (UNDIRECTED GRAPH) AND SHOWING PATH DONE...\n");
 
-        searchedVertex = bfs.search(bfsRootNode, 5); // search tree for selected vertex id
-        bfs.shortestPath(bfsRootNode, searchedVertex); // look for BFS tree node vertex with id 8!
-
-        BreadthFirstSearch bfsDir = new BreadthFirstSearch(adjListDir.exposeAdjList()); // DIRECTED
-        BFSTreeNode<Vertex> bfsRootNodeDir = bfsDir.initBfsTree(1);
-        bfsDir.processList();
-
-        searchedVertex = bfsDir.search(bfsRootNodeDir, 5);
-        bfs.shortestPath(bfsRootNodeDir, searchedVertex);
+        BreadthFirstSearch bfsDirected = new BreadthFirstSearch(adjListDir.exposeAdjList()); // DIRECTED
+        Vertex bfsRootDirected = bfsDirected.initTree(1);
+        bfsDirected.buildTree();
+        bfsDirected.showPath(bfsRootDirected, bfsDirected.searchTree(bfsRootDirected, 2));
+        System.out.println("BUILDING BFS TREE (DIRECTED GRAPH) AND SHOWING PATH DONE...\n");
 
         /* DEPTH-FIRST-SEARCH */
+        EdgeList edgeListDfsDirected = reader.readFile(args, false);
+        AdjacencyList alDfs = new AdjacencyList(edgeListDfsDirected); // create a new adjacency list
+        LinkedList<Vertex>[] alDfsL = alDfs.exposeAdjList();
+
+        DepthFirstSearch dfsDirected = new DepthFirstSearch(alDfsL);
+        //dfsDirected.depthSearch();
 
         /* TOPOLOGICAL SORT */
+        dfsDirected.topSort(alDfsL);
+        dfsDirected.printTopSort();
 
         /* SCC */
 

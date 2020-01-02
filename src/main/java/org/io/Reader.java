@@ -15,6 +15,7 @@ public class Reader {
     private File input;
     private LineNumberReader reader;
     private EdgeList edgeList;
+    private int[] vertexArr;
     private static final Logger logger = LogManager.getLogger(App.class);
 
     public Reader() {
@@ -34,12 +35,12 @@ public class Reader {
         }
         try {
             reader = new LineNumberReader(new FileReader(input));
-            edgeList = new EdgeList();
+
             int id = 0;
             while ((currentLine = reader.readLine()) != null) {
                 if (reader.getLineNumber() == 1) {  // first line is always number of vertices in G(V,E)
                     vertexCount = Character.getNumericValue(currentLine.charAt(0));
-                    edgeList.addVertexCount(vertexCount);
+                    edgeList = new EdgeList(vertexCount);
                     logger.info("vertex count is: " + vertexCount);
                 } else {
                     id++;

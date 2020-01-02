@@ -37,7 +37,7 @@ public class GraphViz {
                 int vToId = e.getToV().getId();
                 MutableNode a = mutNode(valueOf(vFromId));
                 MutableNode b = mutNode(valueOf(vToId));
-                System.out.println(a.toString() + b.toString());
+                //System.out.println(a.toString() + b.toString());
                 g.add(a.addLink(b));
             }
             Graphviz.fromGraph(g).render(Format.PNG).toFile(new File("example/" + name + ".png"));
