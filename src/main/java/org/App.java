@@ -68,7 +68,7 @@ public class App {
             }
             System.out.println("v" + i + "\t" + colValues);
         }
-
+        // FIXME: refactor print methods for data structures into classes
         // ADJACENCY MATRIX
         AdjacencyMatrix aMatrix = new AdjacencyMatrix(edgeList);
         int[][] aMat = aMatrix.exposeMat();
@@ -93,19 +93,11 @@ public class App {
         AdjacencyList adjListDir = new AdjacencyList(edgeListDir);
 
         System.out.println("\nPrinting Adjacency List (undirected)...");
-        for(int i = 1; i < adjList.getDimension(); i++){
-            System.out.print("\n[V" + i + "]: ");
-            for(Vertex v: adjList.exposeAdjList()[i]) {
-                System.out.print("V" + v.getId() + "->");
-            }
-        }
+        adjList.printAdjList(adjList.exposeAdjList());
+
         System.out.println("\n\nPrinting Adjacency List (directed)...");
-        for(int i = 1; i < adjListDir.getDimension(); i++){
-            System.out.print("\n[V" + i + "]: ");
-            for(Vertex v: adjListDir.exposeAdjList()[i]) {
-                System.out.print("V" + v.getId() + "->");
-            }
-        }
+        adjListDir.printAdjList(adjListDir.exposeAdjList());
+
         System.out.println("\n\nDone printing data structures...\n");
 
         /* ALGORITHM SECTION */
@@ -129,15 +121,19 @@ public class App {
         AdjacencyList alDfs = new AdjacencyList(edgeListDfsDirected); // create a new adjacency list
         LinkedList<Vertex>[] alDfsL = alDfs.exposeAdjList();
 
-        DepthFirstSearch dfsDirected = new DepthFirstSearch(alDfsL);
+        DepthFirstSearch DFS = new DepthFirstSearch();
         //dfsDirected.depthSearch();
 
         /* TOPOLOGICAL SORT */
-        dfsDirected.topSort(alDfsL);
-        dfsDirected.printTopSort();
+        LinkedList<Vertex> topSort = DFS.topSort(alDfsL);
+        DFS.printTopSort(topSort);
 
         /* SCC */
-
+        EdgeList edgeListScc = reader.readFile(args, true);
+        AdjacencyList alScc = new AdjacencyList(edgeListScc); // create a new adjacency list
+        // LinkedList<Vertex>[] talSccL = dfsDirected.transpose(alScc.exposeAdjList());
+        // alScc.printAdjList(talSccL);
+        DFS.SCC(alScc.exposeAdjList()); // SCC visit of transposed graph
 
         logger.trace("Quiting application...");
     }

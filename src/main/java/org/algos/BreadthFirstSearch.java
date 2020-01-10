@@ -111,7 +111,7 @@ public class BreadthFirstSearch {
      * else printPath(s, v.pred)
      *  print v
      */
-    // FIXME: Shortest path needs to compute and compare paths wenn a node has multiple parent
+    // FIXME: Shortest path needs to compute and compare paths when a node has multiple parent
     public void showPath(Vertex s, Vertex v){
         if(v == s){
             System.out.println("\nPATH TO VERTEX: [" + s.getId() + "] DONE!");
