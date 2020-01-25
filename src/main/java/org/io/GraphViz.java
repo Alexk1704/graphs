@@ -27,7 +27,6 @@ public class GraphViz {
     public void printGraph(String name, EdgeList el, boolean directed) throws IOException {
         try {
             MutableGraph g = mutGraph(name).setDirected(directed);
-            // Maybe first create vertex then add links later...?
             for (int i = 1; i < el.getVertexCount() + 1; i++) {
                 g.add(mutNode(valueOf(i)));
             }
@@ -37,7 +36,6 @@ public class GraphViz {
                 int vToId = e.getToV().getId();
                 MutableNode a = mutNode(valueOf(vFromId));
                 MutableNode b = mutNode(valueOf(vToId));
-                //System.out.println(a.toString() + b.toString());
                 g.add(a.addLink(b));
             }
             Graphviz.fromGraph(g).render(Format.PNG).toFile(new File("example/" + name + ".png"));
