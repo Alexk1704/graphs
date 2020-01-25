@@ -3,6 +3,8 @@ package org;
 
 import org.algos.BreadthFirstSearch;
 import org.algos.DepthFirstSearch;
+import org.algos.Kruskal;
+import org.algos.Prim;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.ds.*;
@@ -134,6 +136,16 @@ public class App {
         // LinkedList<Vertex>[] talSccL = dfsDirected.transpose(alScc.exposeAdjList());
         // alScc.printAdjList(talSccL);
         DFS.SCC(alScc.exposeAdjList()); // SCC visit of transposed graph
+
+        EdgeList edgeListKruskal = reader.readFile(args, false);
+        Kruskal krusk = new Kruskal();
+        krusk.printKruskal((krusk.MSTKruskal(edgeListKruskal)));
+
+        EdgeList edgeListPrim = reader.readFile(args, false);
+        AdjacencyList alPrim = new AdjacencyList(edgeListPrim);
+        Prim prim = new Prim();
+        Vertex primRootVertex = prim.MSTPrim(edgeListPrim, alPrim);
+        prim.printPrim(primRootVertex);
 
         logger.trace("Quiting application...");
     }

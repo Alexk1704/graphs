@@ -2,6 +2,7 @@ package org.ds;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Vertex {
 
@@ -14,6 +15,7 @@ public class Vertex {
     private Integer distance; // distance from source node (BFS)
     private Integer discovered; // discovery time (DFS)
     private Integer finished; // finishing time (DFS)
+    private Integer key; // key (Prim)
 
     private Vertex parent; // reference to parent node
     private ArrayList<Vertex> children;
@@ -29,7 +31,18 @@ public class Vertex {
         this.distance = null;
         this.discovered = null;
         this.finished = null;
+        this.key = null;
         this.children = new ArrayList<Vertex>();
+    }
+
+    public static final Comparator<Vertex> getComparator(){
+        Comparator comp = new Comparator<Vertex>(){
+            @Override
+            public int compare(Vertex v1, Vertex v2) {
+                return v1.key.compareTo(v2.key);
+            }
+        };
+        return comp;
     }
 
     public void setParent(Vertex parent){
@@ -92,5 +105,13 @@ public class Vertex {
 
     public void setFinishTime(Integer finished){
         this.finished = finished;
+    }
+
+    public Integer getKey(){
+        return this.key;
+    }
+
+    public void setKey(Integer key){
+        this.key = key;
     }
 }

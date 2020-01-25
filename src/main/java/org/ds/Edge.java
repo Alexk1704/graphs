@@ -1,6 +1,8 @@
 package org.ds;
 
 
+import java.util.Comparator;
+
 public class Edge {
     private Vertex fromVertex;
     private Vertex toVertex;
@@ -14,6 +16,16 @@ public class Edge {
         this.isDirected = isDirected;
         this.id = id;
         this.weight = weight;
+    }
+
+    public static final Comparator<Edge> getComparator(){
+        Comparator comp = new Comparator<Edge>(){
+            @Override
+            public int compare(Edge e1, Edge e2) {
+                return e1.weight.compareTo(e2.weight);
+            }
+        };
+        return comp;
     }
 
     public void setDirected(boolean isDirected){

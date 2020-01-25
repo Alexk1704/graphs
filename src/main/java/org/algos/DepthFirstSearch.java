@@ -193,9 +193,16 @@ public class DepthFirstSearch {
             for(int j = 1; j < adjList[i].size(); j++){
                 if(transposedAdjList[adjList[i].get(j).getId()] == null){
                     transposedAdjList[adjList[i].get(j).getId()] = new LinkedList<Vertex>();
+
                     Vertex v = adjList[adjList[i].get(j).getId()].getFirst();
                     v.setFlag(Vertex.Flag.WHITE);
                     transposedAdjList[adjList[i].get(j).getId()].add(v);
+                }
+                if(transposedAdjList[i] == null){
+                    transposedAdjList[i] = new LinkedList<Vertex>();
+                    Vertex v = adjList[i].getFirst();
+                    v.setFlag(Vertex.Flag.WHITE);
+                    transposedAdjList[i].addFirst(v);
                 }
                 Vertex v = adjList[i].getFirst();
                 v.setFlag(Vertex.Flag.WHITE);

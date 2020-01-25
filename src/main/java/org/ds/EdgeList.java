@@ -35,12 +35,25 @@ public class EdgeList {
         );
     }
 
-    public void addVertexCount(int count){
+    public void setVertexCount(int count){
         this.vertexCount = count;
     }
 
     public int getVertexCount(){
         return this.vertexCount;
+    }
+
+    public Edge findEdge(Vertex from, Vertex to){
+        for (Edge e: this.edgeList) {
+            if(e.getFromV().equals(from) && e.getToV().equals(to)){
+                return e;
+            }
+        }
+        return null;
+    }
+
+    public Vertex[] getVertexArr(){
+        return this.vertexArr;
     }
 
     public String convertDOT(boolean isDirected){
