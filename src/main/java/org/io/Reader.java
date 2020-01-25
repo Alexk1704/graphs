@@ -44,17 +44,19 @@ public class Reader {
                     logger.info("vertex count is: " + vertexCount);
                 } else {
                     id++;
-                    Integer weight;
-                    weight = null;
-                    int second;
+                    Integer weight = null;
+                    String nrStr = "";
                     int first = Character.getNumericValue(currentLine.charAt(0));
-                    if(currentLine.length() == 5){ // weights included
-                        weight = Character.getNumericValue(currentLine.charAt(2));
-                        second = Character.getNumericValue(currentLine.charAt(4));
-                    } else {
-                        second = Character.getNumericValue(currentLine.charAt(2));
+                    int last = Character.getNumericValue(currentLine.charAt(currentLine.length()-1));
+                    if(currentLine.length() > 4){ // weights included
+                        for(int i = 1; i < currentLine.length()-1; i++){
+                            if(Character.isDigit(currentLine.charAt(i))){ // if is digit
+                                nrStr = nrStr + currentLine.charAt(i); // append character
+                            }
+                        }
+                        weight = Integer.valueOf(nrStr);
                     }
-                    edgeList.addEdge(first, second, id, isDirected, weight);
+                    edgeList.addEdge(first, last, id, isDirected, weight);
                 }
             }
         } catch (IOException e) {

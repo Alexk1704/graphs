@@ -2,7 +2,6 @@ package org.algos;
 
 public class FloydWarshall {
 
-
     // public int[][] returnTransposed(int[][] weightAdjMat)
     // need a adjacency matrix with weights as entries
     // n = weightAdjMat.getRowSize();

@@ -43,6 +43,17 @@ public class AdjacencyList {
         }
     }
 
+    public void printAdjList(LinkedList<Vertex>[] adjList){
+        for(int i = 1; i < adjList.length; i++){
+            System.out.print("\n[V" + i + "]: ");
+            if(adjList[i] != null) {
+                for (Vertex v : adjList[i]) {
+                    System.out.print("V" + v.getId() + "->");
+                }
+            }
+        }
+    }
+
     public LinkedList<Vertex>[] exposeAdjList(){
         return adjList;
     }

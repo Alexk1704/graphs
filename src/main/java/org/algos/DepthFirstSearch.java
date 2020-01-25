@@ -32,25 +32,21 @@ package org.algos;
 import org.ds.Vertex;
 
 import java.util.LinkedList;
+import java.util.Stack;
 
 public class DepthFirstSearch {
 
-    final LinkedList<Vertex>[] adjList;
     Integer time;
-    LinkedList<Vertex> topSortList;
 
-    public DepthFirstSearch(LinkedList<Vertex>[] adjList){
-        this.adjList = adjList;
-    }
+    public DepthFirstSearch(){ }
 
     /* All nodes white (0), predecessor: NULL ptr, time var (global): 0 */
-    // FIXME: use method parameter for adjacency lists instead of saving it inside the object
-    public void depthSearch(){
+    public void depthSearch(LinkedList<Vertex>[] adjList){
         // nodes already white, and predecessor is NULL by default
         time = 0;
         for(int i = 1; i < adjList.length; i++){
             if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
-                visit(adjList[i], false);
+                visit(adjList, adjList[i], null, null, false);
             }
         }
     }
@@ -67,25 +63,36 @@ public class DepthFirstSearch {
      * The algorithm builds the tree from bottom up, we need to turn it to get our DFS forest
      */
     // FIXME: rewrite with local heap stack instead of recursion
-    public void visit(LinkedList<Vertex> adj, boolean topSort) {
-        time = time + 1;
+    public void visit(LinkedList<Vertex>[] adjList, LinkedList<Vertex> adj, Stack s, LinkedList<Vertex> topSort, boolean scc) {
         Vertex u = adj.getFirst();
-        u.setDiscoveryTime(time); // set discovery time for calling vertex
-        System.out.println("[V" + u.getId() + "]\tDISCOVERED ON STEP " + time);
+        if(!scc) {
+            time = time + 1;
+            System.out.println("[V" + u.getId() + "]\tDISCOVERED ON STEP " + time);
+            u.setDiscoveryTime(time); // set discovery time for calling vertex
+        }
         u.setFlag(Vertex.Flag.GRAY); // set colour to GRAY (discovered)
-        for(int i = 0; i < adj.size(); i++){ // explore edge (u, v), skipe first since its u node
+        if(scc)
+            System.out.print("[V" + u.getId() + "]\t");
+        for(int i = 0; i < adj.size(); i++){ // explore edge (u, v), skip first since its u node
             // skip first since its calling node
             if(adj.get(i).getFlag() == Vertex.Flag.WHITE){ // adjacent vertex white?
-                adj.get(i).setParent(u); // set its parent
-                visit(adjList[adj.get(i).getId()], topSort); // recursive call
+                if(!scc)
+                    adj.get(i).setParent(u); // set its parent
+                visit(adjList, adjList[adj.get(i).getId()], s, topSort, scc); // recursive call
             }
         }
-
         u.setFlag(Vertex.Flag.BLACK); // set to black after return of control
-        time = time + 1;
-        u.setFinishTime(time); // set finishing time
-        if(topSort) { topSortList.add(u); } // add to linked list if topological sort
-        System.out.println("[V" + u.getId() + "]\tFINISHED ON STEP " + time);
+        if(s != null) {
+            // after calling recursive DFS for adjacent vertices of a vertex, push vertex to stack (sorted by f(u))
+            s.push(u);
+        }
+        if(!scc){
+            time = time + 1;
+            u.setFinishTime(time); // set finishing time
+            System.out.println("[V" + u.getId() + "]\tFINISHED ON STEP " + time);
+            if(topSort != null)
+                topSort.add(u);  // add to linked list if topological sort
+        }
     }
 
     /* Topological sort of a DAG (directed, acyclic graph) is a sort of all nodes,
@@ -103,26 +110,29 @@ public class DepthFirstSearch {
      * A directed graph G is acyclic exactly then when DFS gives us no back edges
      */
     public LinkedList<Vertex> topSort(LinkedList<Vertex>[] adjList){
-        topSortList = new LinkedList<>();
+        LinkedList<Vertex> topSort;
+        topSort = new LinkedList<>();
         time = 0;
         for(int i = 1; i < adjList.length; i++){
             if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
-                visit(adjList[i], true);
+                visit(adjList, adjList[i], null, topSort, false);
             }
         }
-        return topSortList;
+        return topSort;
     }
 
-    public void printTopSort(){
+    public void printTopSort(LinkedList<Vertex> topSortList){
         System.out.println("\nTOPOLOGICAL SORT (DIGRAPH):\n");
-        for(Vertex v: this.topSortList){
+        for(Vertex v: topSortList){
             System.out.println("V[" + v.getId() + "]\tDISCOVERY: "
                     + v.getDiscoveryTime() + "\tFINISHED: "
                     + v.getFinishTime());
         }
+        System.out.println("\nTOPOLOGICAL SORT (DIGRAPH) FINISHED...\n");
     }
 
     /* SCC(G): takes transposed G
+     * Kosaraju's algorithm
      * Flip edges (gives us same amount of strongly connected components)
      * Start with node with highest finishing time gives us same amount of trees/SCCs
      * Method flips the Tree, call DFS for transposed Tree
@@ -135,9 +145,71 @@ public class DepthFirstSearch {
      * 2. calculate G' (transposed)
      * 3. call DFS(G'), work through neighbouring nodes in descending order of v.f
      * 4. return every tree of DFS forest (from 3.) as SCC
-     * */
-    public void scc(){
+     *
+     * DFS of a graph with only one SCC always produces a tree
+     * So depending on source vertex DFS can produce either a tree or a forest
+     * To find and print all SCCs, if we do a DFS of graph and store vertices according to their finish times,
+     * we make sure that the finish time of a vertex hat connects to other SCCs (other than its own SCC), will
+     * always be greater than finish time of vertices in other SCC.
+     * DFS traversal of complete graph and push every finished vertex to a stack.
+     *
+     * Next step: we reverse the graph. In G' edges that connect two components are reversed.
+     * So SCC {0, 1, 2} becomes sink and SCC {4} becomes source. As discussed above, in S, we always have
+     * 0 before 3 and 4. so if we do DFS on reversed graph using sequence of vertices in stack, we process from sink to source (in G').
+     *
+     */
+    public void SCC(LinkedList<Vertex>[] adjList){
+        System.out.println("STRONGLY CONNECTED COMPONENTS (DIGRAPH):");
+        Stack s = new Stack(); // Create empty stack S
+        time = 0;
+        System.out.println("DFS TRAVERSAL FOR G:");
+        for(int i = 1; i < adjList.length; i++){ // DFS traversal of graph G
+            if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
+                visit(adjList, adjList[i], s, null, false);
+            }
+        }
+        System.out.println("\nTRANSPOSING ADJACENCY LIST (CREATING G')");
+        LinkedList<Vertex>[] transposedAdj = transpose(adjList); // create transposed G
 
+        System.out.println("PRINTING STRONGLY CONNECTED COMPONENTS FOR G'");
+        while(!s.empty()) {
+            Vertex v = (Vertex) s.pop();
+            if(v.getFlag() == Vertex.Flag.WHITE) {
+                visit(transposedAdj, transposedAdj[v.getId()], null, null, true);
+                System.out.println();
+            }
+        }
+        // Reverse directions of all arcs to obtain transpose graph
+        // One by one pop vertex from S while S not empty
+        // Let popped vertex v, take v as source and do DFS.
+        // DFS starting from v prints SCC of v, process vertices in order 0, 3, 4, 2, 1
+    }
+
+    /* create G' a transposed adjacency list with edges flipped (u,v) to (v,u) for each edge */
+    public LinkedList<Vertex>[] transpose(LinkedList<Vertex>[] adjList){
+        LinkedList<Vertex>[] transposedAdjList;
+        transposedAdjList = new LinkedList[adjList.length];
+        for(int i = 1; i < adjList.length; i++){
+            for(int j = 1; j < adjList[i].size(); j++){
+                if(transposedAdjList[adjList[i].get(j).getId()] == null){
+                    transposedAdjList[adjList[i].get(j).getId()] = new LinkedList<Vertex>();
+
+                    Vertex v = adjList[adjList[i].get(j).getId()].getFirst();
+                    v.setFlag(Vertex.Flag.WHITE);
+                    transposedAdjList[adjList[i].get(j).getId()].add(v);
+                }
+                if(transposedAdjList[i] == null){
+                    transposedAdjList[i] = new LinkedList<Vertex>();
+                    Vertex v = adjList[i].getFirst();
+                    v.setFlag(Vertex.Flag.WHITE);
+                    transposedAdjList[i].addFirst(v);
+                }
+                Vertex v = adjList[i].getFirst();
+                v.setFlag(Vertex.Flag.WHITE);
+                transposedAdjList[adjList[i].get(j).getId()].add(v);
+            }
+        }
+        return transposedAdjList;
     }
 
     /* INFO about RECURSION/EXPLICIT STACKS
