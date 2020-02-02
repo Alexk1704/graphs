@@ -9,7 +9,7 @@ import org.ds.EdgeList;
 import org.ds.Vertex;
 
 
-/*
+/* Prim MST
  * Input: connected graph G and root r (source node) of MST to be grown are inputs
  * During execution, all vertices that are not in the tree reside in a min-priority Queue Q based on key attribute
  * For each vertex v, attribute v.key is min weight of any edge connecting v to a vertex in the tree,
@@ -45,47 +45,50 @@ public class Prim {
      *              v.pi = u
      *              v.key = w(u,v)
      */
-     public Vertex MSTPrim(EdgeList edgeList, AdjacencyList adjList){
-         ArrayList el = edgeList.returnEdgeList();
+     public LinkedList<Vertex> MSTPrim(EdgeList edgeList, AdjacencyList adjList, int rootId){
+         System.out.println("\nMST PRIM TRAVERSAL...");
          LinkedList<Vertex>[] al = adjList.exposeAdjList();
-         // randomly chose a root for set A (min spanning tree) and set its key to 0
-         Random rand = new Random();
-         Vertex root = (Vertex) edgeList.getVertexArr()[rand.nextInt(el.size())];
-         root.setKey(0);
-         // create p-queue with weight (key) comparator including all vertices not added to MST yet
-         //PriorityQueue<Edge> pq = new PriorityQueue<>(el.size(), Edge.getComperator());
-         //pq.addAll(el); // add all edges to q
+         LinkedList<Vertex> mstSet = new LinkedList<Vertex>();
+         Vertex root = null;
+         // create p-queue with (key) comparator including all vertices not added to MST yet
          PriorityQueue<Vertex> pq = new PriorityQueue<>(edgeList.getVertexCount(), Vertex.getComparator());
-         for(int i = 0; i < edgeList.getVertexArr().length; i++) {
-             pq.add(edgeList.getVertexArr()[i]);
+         for(int i = 1; i < al.length; i++){
+             Vertex vertex = al[i].getFirst();
+             if(vertex.getId() == rootId) {
+                 vertex.setKey(0);
+                 root = vertex;
+             }
+             else vertex.setKey(99999);
+             pq.add(vertex);
          }
-         while(pq.size() != 0){ // go through all edges
-             //Edge current = pq.poll();
-             //Vertex currentFrom = current.getFromV();
+         while(pq.size() != 0){ // pick vertex with lowest key value not added to mstSet yet
              Vertex current = pq.poll();
-             // for each adjacent vertex of from vertex from current edge, check if those vertices are still in Q and if
-             // key of current from V is bigger than edge we are processing right now, if so, change the key of current from Vertex.
-             for(int i = 0; i < al[current.getId()].size(); i++){
+             System.out.println("[V" + current.getId() + "] CURRENT Q VERTEX");
+             mstSet.add(current);
+             for(int i = 0; i < al[current.getId()].size(); i++) { // go through all adjacent vertices
                  Vertex adjVertex = al[current.getId()].get(i); // a vertex (v) connected to current (u)
                  // if v element of Q && w(u,v) < v.key
                  Edge w = edgeList.findEdge(current, adjVertex);
-                 if(pq.contains(adjVertex) && w.getWeight() < current.getKey()){
-                     adjVertex.setParent(current); // v.pred = u
-                     current.addChild(adjVertex);
-                     adjVertex.setKey(w.getWeight()); // v.key = w(u,v)
+                 if(adjVertex != null && w != null){
+                     if (pq.contains(adjVertex) && w.getWeight() < adjVertex.getKey()) {
+                         System.out.println("\tUPDATED ADJACENT [V" + adjVertex.getId() + "] WITH KEY: " + w.getWeight());
+                         adjVertex.setParent(current); // v.pred = u
+                         if(pq.remove(adjVertex)) pq.add(adjVertex); // have to remove and re-add to ensure priority sorting
+                         adjVertex.setKey(w.getWeight()); // v.key = w(u,v)
+                     }
                  }
              }
          }
-         return root;
+         return mstSet;
      }
 
-     public void printPrim(Vertex root){
-         System.out.println("\nPrinting PRIM MST top-down:\n");
-         Vertex curr = root;
-         System.out.println("[V" + curr.getId() + "] Key: " + curr.getKey());
-         ArrayList<Vertex> children = curr.getChildren();
-         for (Vertex v: children) {
-             printPrim(v);
+     public void printPrim(LinkedList<Vertex> mstSet){
+         int weightSum = 0;
+         System.out.println("PRINTING MIN SPANNING TREE VIA PRIM'S ALGORITHM!");
+         for(Vertex v : mstSet){
+             weightSum += v.getKey();
+             System.out.print("[V" + v.getId() + "] ");
          }
+         System.out.println("OVERALL KEY SUM: " + weightSum);
      }
 }

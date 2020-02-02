@@ -15,7 +15,6 @@ public class Reader {
     private File input;
     private LineNumberReader reader;
     private EdgeList edgeList;
-    private int[] vertexArr;
     private static final Logger logger = LogManager.getLogger(App.class);
 
     public Reader() {
@@ -35,28 +34,36 @@ public class Reader {
         }
         try {
             reader = new LineNumberReader(new FileReader(input));
-
+            Integer nrArr[] = new Integer[3];
             int id = 0;
             while ((currentLine = reader.readLine()) != null) {
                 if (reader.getLineNumber() == 1) {  // first line is always number of vertices in G(V,E)
-                    vertexCount = Character.getNumericValue(currentLine.charAt(0));
+                    String vStr = "";
+                    for(int i = 0; i < currentLine.length(); i++){
+                        if(Character.isDigit(currentLine.charAt(i))){ // if is digit
+                            vStr += currentLine.charAt(i); // append character
+                        }
+                    }
+                    vertexCount = Integer.valueOf(vStr);
                     edgeList = new EdgeList(vertexCount);
                     logger.info("vertex count is: " + vertexCount);
                 } else {
                     id++;
-                    Integer weight = null;
                     String nrStr = "";
-                    int first = Character.getNumericValue(currentLine.charAt(0));
-                    int last = Character.getNumericValue(currentLine.charAt(currentLine.length()-1));
-                    if(currentLine.length() > 4){ // weights included
-                        for(int i = 1; i < currentLine.length()-1; i++){
-                            if(Character.isDigit(currentLine.charAt(i))){ // if is digit
-                                nrStr = nrStr + currentLine.charAt(i); // append character
-                            }
+                    int nrCount = 0;
+                    for(int i = 0; i < currentLine.length(); i++){
+                        if(Character.isDigit(currentLine.charAt(i))){ // if is digit
+                            nrStr += currentLine.charAt(i); // append character
                         }
-                        weight = Integer.valueOf(nrStr);
+                        if(currentLine.charAt(i) == ' '){
+                            nrArr[nrCount] = Integer.valueOf(nrStr);
+                            nrStr = "";
+                            nrCount++;
+                        }
                     }
-                    edgeList.addEdge(first, last, id, isDirected, weight);
+                    nrArr[nrCount] = Integer.valueOf(nrStr);
+                    if(nrArr.length == 3) edgeList.addEdge(nrArr[0], nrArr[2], id, isDirected, nrArr[1]);
+                    else edgeList.addEdge(nrArr[0], nrArr[1], id, isDirected, null);
                 }
             }
         } catch (IOException e) {

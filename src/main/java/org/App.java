@@ -12,6 +12,7 @@ import org.io.GraphViz;
 import org.io.Reader;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -24,12 +25,12 @@ public class App {
 
     public static void main( String[] args ) throws IOException {
         logger.trace("Starting application.."); // Set up simple config that logs on console
-
+        long t1 = System.nanoTime();
         reader = new Reader();
         EdgeList edgeListDir = reader.readFile(args, true);
         EdgeList edgeList = reader.readFile(args, false);
 
-        /* print .png of both graph versions via gViz */
+        /* print .png of graphs via gViz */
         GraphViz gViz = new GraphViz();
         gViz.printGraph("graph_dir", edgeListDir, true);
         gViz.printGraph("graph_undir", edgeList, false);
@@ -70,7 +71,7 @@ public class App {
             }
             System.out.println("v" + i + "\t" + colValues);
         }
-        // FIXME: refactor print methods for data structures into classes
+
         // ADJACENCY MATRIX
         AdjacencyMatrix aMatrix = new AdjacencyMatrix(edgeList);
         int[][] aMat = aMatrix.exposeMat();
@@ -133,20 +134,22 @@ public class App {
         /* SCC */
         EdgeList edgeListScc = reader.readFile(args, true);
         AdjacencyList alScc = new AdjacencyList(edgeListScc); // create a new adjacency list
-        // LinkedList<Vertex>[] talSccL = dfsDirected.transpose(alScc.exposeAdjList());
-        // alScc.printAdjList(talSccL);
+
         DFS.SCC(alScc.exposeAdjList()); // SCC visit of transposed graph
 
         EdgeList edgeListKruskal = reader.readFile(args, false);
-        Kruskal krusk = new Kruskal();
-        krusk.printKruskal((krusk.MSTKruskal(edgeListKruskal)));
+        Kruskal kruskal = new Kruskal();
+        kruskal.printKruskal((kruskal.MSTKruskal(edgeListKruskal)));
 
         EdgeList edgeListPrim = reader.readFile(args, false);
         AdjacencyList alPrim = new AdjacencyList(edgeListPrim);
         Prim prim = new Prim();
-        Vertex primRootVertex = prim.MSTPrim(edgeListPrim, alPrim);
-        prim.printPrim(primRootVertex);
+        LinkedList<Vertex> primSet = prim.MSTPrim(edgeListPrim, alPrim, 1);
+        prim.printPrim(primSet);
 
+        long elapsed = System.nanoTime() - t1;
+        double seconds = elapsed / 1000000000;
+        System.out.println("\nSeconds elapsed: " + seconds);
         logger.trace("Quiting application...");
     }
 }

@@ -43,9 +43,10 @@ public class EdgeList {
         return this.vertexCount;
     }
 
+    // Finds an edge with two given vertices for an undirected graph and returns it when found
     public Edge findEdge(Vertex from, Vertex to){
         for (Edge e: this.edgeList) {
-            if(e.getFromV().equals(from) && e.getToV().equals(to)){
+            if(e.getFromV().equals(from) && e.getToV().equals(to) || e.getFromV().equals(to) && e.getToV().equals(from)){
                 return e;
             }
         }

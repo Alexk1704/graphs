@@ -59,7 +59,7 @@ public class Kruskal{
     }
 
     public void printKruskal(ArrayList<Edge> mst){
-        System.out.println("\n PRINTING MIN SPANNING TREE VIA KRUSKAL'S ALGORITHM!\n");
-        for (Edge e: mst) { System.out.println("Edge " + e.getFromV().getId() + " " + e.getToV().getId()); }
+        System.out.println("\nPRINTING MIN SPANNING TREE VIA KRUSKAL'S ALGORITHM!\n");
+        for (Edge e: mst) { System.out.println("[EDGE] " + e.getFromV().getId() + "---" + e.getToV().getId()); }
     }
 }
