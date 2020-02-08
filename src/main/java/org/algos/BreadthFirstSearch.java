@@ -57,7 +57,7 @@ public class BreadthFirstSearch {
                         source.wipeChildren();
                     } else {
                         v.setFlag(Vertex.Flag.WHITE);
-                        v.setDistance(null);
+                        v.setDistance(Integer.MAX_VALUE);
                         v.setParent(null);
                         v.wipeChildren();
                     }

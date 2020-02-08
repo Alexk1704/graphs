@@ -57,7 +57,7 @@ public class Prim {
                  root = vertex;
              }
              else {
-                 vertex.setKey(99999);
+                 vertex.setKey(Integer.MAX_VALUE);
                  vertex.setParent(null);
              }
              pq.add(vertex);

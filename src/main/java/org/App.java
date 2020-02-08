@@ -1,10 +1,7 @@
 package org;
 
 
-import org.algos.BreadthFirstSearch;
-import org.algos.DepthFirstSearch;
-import org.algos.Kruskal;
-import org.algos.Prim;
+import org.algos.*;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.ds.*;
@@ -99,6 +96,9 @@ public class App {
         if(gUndirected.hasWeights()) prim.printPrim(prim.MSTPrim(gUndirected, 1));
 
         /* BELLMAN FORD */
+        BellmannFord bellmannFord = new BellmannFord(gDirected, 1);
+        boolean bf = bellmannFord.bellmannFord(1);
+        bellmannFord.printShortestPath(3);
 
         /* DJIKSTRA */
 

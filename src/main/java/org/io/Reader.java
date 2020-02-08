@@ -43,7 +43,7 @@ public class Reader {
                     int nrCount = 0;
 
                     for(int i = 0; i < currentLine.length(); i++){
-                        if(Character.isDigit(currentLine.charAt(i))){ // if is digit
+                        if(Character.isDigit(currentLine.charAt(i)) || currentLine.charAt(i) == '-'){ // if is digit
                             nrStr += currentLine.charAt(i); // append character
                         }
                         if(currentLine.charAt(i) == ' '){
