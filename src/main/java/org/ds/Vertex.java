@@ -63,6 +63,8 @@ public class Vertex {
         this.children.add(child);
     }
 
+    public void wipeChildren() { this.children = new ArrayList<Vertex>(); }
+
     public void setId(final int id){
         this.id = id;
     }

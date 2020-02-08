@@ -1,7 +1,7 @@
 package org.algos;
 
 import org.ds.Edge;
-import org.ds.EdgeList;
+import org.ds.Graph;
 import org.ds.Vertex;
 import org.jgrapht.alg.util.UnionFind;
 import java.util.PriorityQueue;
@@ -34,16 +34,16 @@ public class Kruskal{
     * take edge with lowest weight and add it to MST, if cycle gets created - reject it.
     * keep adding weights until we reached all vertices!
     */
-    public ArrayList<Edge> MSTKruskal(EdgeList edgeList){
+    public ArrayList<Edge> MSTKruskal(Graph g){
         // UnionFind is a disjoint-set DS, can find set a specific element is in, and merge two sets.
         ArrayList<Edge> mst = new ArrayList<Edge>();
         HashSet<Vertex> vertexSet = new HashSet<Vertex>();
-        for (Vertex v: edgeList.getVertexArr()) {
+        for (Vertex v: g.getVertexArr()) {
              vertexSet.add(v);
         }
         // disjoint set implementation for find set and union operations
         UnionFind uf = new UnionFind(vertexSet);
-        ArrayList el = edgeList.returnEdgeList();
+        ArrayList el = g.returnEdgeList();
         // create p-queue with weight comparator
         PriorityQueue<Edge> pq = new PriorityQueue<>(el.size(), Edge.getComparator());
         pq.addAll(el); // add all edges to q

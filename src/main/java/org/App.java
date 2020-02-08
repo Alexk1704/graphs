@@ -26,126 +26,83 @@ public class App {
     public static void main( String[] args ) throws IOException {
         logger.trace("Starting application.."); // Set up simple config that logs on console
         long t1 = System.nanoTime();
+
+        /* DATA STRUCTURE SECTION */
         reader = new Reader();
-        EdgeList edgeListDir = reader.readFile(args, true);
-        EdgeList edgeList = reader.readFile(args, false);
+        Graph gDirected = reader.readFile(args, true);
+        Graph gUndirected = reader.readFile(args, false);
 
         /* print .png of graphs via gViz */
         GraphViz gViz = new GraphViz();
-        gViz.printGraph("graph_dir", edgeListDir, true);
-        gViz.printGraph("graph_undir", edgeList, false);
-
-        // edge list as ArrayList of edge objects
-        ArrayList<Edge> elDir = edgeListDir.returnEdgeList();
-
-        System.out.println("\nPrinting Edge List...");
-        for(int i = 0; i < elDir.size(); i++){
-            Edge e = elDir.get(i);
-            System.out.println("Edge " + e.getId() + "\t"
-                    + "v" + e.getFromV().getId() + " -" + e.getWeight() + "-> " + "v" + e.getToV().getId());
-        }
+        gViz.printGraph("graph_dir", gDirected, true);
+        gViz.printGraph("graph_undir", gDirected, false);
 
         /* Print DOT format of edge list (graph & digraph) */
-        System.out.println("\nPrinting DOT format...");
-        System.out.println(edgeListDir.convertDOT(true));
-        System.out.println(edgeList.convertDOT(false));
+        System.out.println(gDirected.convertDOT(true));
+        System.out.println(gUndirected.convertDOT(false));
 
-        /* Conversion to different representations */
+        gDirected.createDataStructs();
+        gUndirected.createDataStructs();
 
-        // INCIDENCE MATRIX
-        IncidenceMatrix iMatrix = new IncidenceMatrix(edgeList);
-        int[][] iMat = iMatrix.exposeMat();
+        gDirected.printEdgeList(true);
+        gUndirected.printEdgeList(false);
 
-        System.out.println("\nPrinting Incidence Matrix...");
+        gDirected.printIncMatrix();
+        gUndirected.printIncMatrix();
 
-        String colIndexes = "";
-        for(int i = 1; i < iMatrix.getColSize(); i++){
-            colIndexes = colIndexes + "e" + i + "\t";
-        }
-        System.out.println("\t" + colIndexes);
-
-        for(int i = 1; i < iMatrix.getRowSize(); i++){
-            String colValues = "";
-            for(int j = 1; j < iMatrix.getColSize(); j++){
-                colValues = colValues + iMat[i][j] + "\t";
-            }
-            System.out.println("v" + i + "\t" + colValues);
-        }
-
-        // ADJACENCY MATRIX
-        AdjacencyMatrix aMatrix = new AdjacencyMatrix(edgeList);
-        int[][] aMat = aMatrix.exposeMat();
-
-        System.out.println("\nPrinting Adjacency Matrix...");
-        colIndexes = "";
-        for(int i = 1; i < aMatrix.getColSize(); i++){
-            colIndexes = colIndexes + "v" + i + "\t";
-        }
-        System.out.println("\t" + colIndexes);
-
-        for(int i = 1; i < aMatrix.getRowSize(); i++){
-            String colValues = "";
-            for(int j = 1; j < aMatrix.getColSize(); j++){
-                colValues = colValues + aMat[i][j] + "\t";
-            }
-            System.out.println("v" + i + "\t" + colValues);
-        }
-
-        // ADJACENCY LIST
-        AdjacencyList adjList = new AdjacencyList(edgeList);
-        AdjacencyList adjListDir = new AdjacencyList(edgeListDir);
-
-        System.out.println("\nPrinting Adjacency List (undirected)...");
-        adjList.printAdjList(adjList.exposeAdjList());
+        gDirected.printAdjMatrix();
+        gUndirected.printAdjMatrix();
 
         System.out.println("\n\nPrinting Adjacency List (directed)...");
-        adjListDir.printAdjList(adjListDir.exposeAdjList());
+        gDirected.printAdjList();
+
+        System.out.println("\nPrinting Adjacency List (undirected)...");
+        gUndirected.printAdjList();
 
         System.out.println("\n\nDone printing data structures...\n");
 
         /* ALGORITHM SECTION */
         System.out.println("Starting algorithm section...");
 
-        /* BREADTH-FIRST-SEARCH */
-        BreadthFirstSearch bfs = new BreadthFirstSearch(adjList.exposeAdjList()); // UNDIRECTED
-        Vertex bfsRoot = bfs.initTree(1); // vertex with id: 1 is source/root
-        bfs.buildTree(); // builds BFS tree
-        bfs.showPath(bfsRoot, bfs.searchTree(bfsRoot, 2)); // shows the path, looks for vertex in BFS tree we specified
+        /* BREADTH FIRST SEARCH UNDIRECTED*/
+        BreadthFirstSearch BFS = new BreadthFirstSearch(gUndirected); // UNDIRECTED
+        Vertex bfsRoot = BFS.initTree(1); // vertex with id: 1 is source/root
+        BFS.buildTree(); // builds BFS tree
+        BFS.showPath(bfsRoot, BFS.searchTree(bfsRoot, 2)); // shows the path, looks for vertex in BFS tree we specified
         System.out.println("BUILDING BFS TREE (UNDIRECTED GRAPH) AND SHOWING PATH DONE...\n");
 
-        BreadthFirstSearch bfsDirected = new BreadthFirstSearch(adjListDir.exposeAdjList()); // DIRECTED
-        Vertex bfsRootDirected = bfsDirected.initTree(1);
-        bfsDirected.buildTree();
-        bfsDirected.showPath(bfsRootDirected, bfsDirected.searchTree(bfsRootDirected, 2));
+        /* BREADTH FIRST SEARCH DIRECTED */
+        BreadthFirstSearch BFSDIR = new BreadthFirstSearch(gDirected); // DIRECTED
+        Vertex bfsRootDirected = BFSDIR.initTree(1);
+        BFSDIR.buildTree();
+        BFSDIR.showPath(bfsRootDirected, BFSDIR.searchTree(bfsRootDirected, 2));
         System.out.println("BUILDING BFS TREE (DIRECTED GRAPH) AND SHOWING PATH DONE...\n");
 
-        /* DEPTH-FIRST-SEARCH */
-        EdgeList edgeListDfsDirected = reader.readFile(args, false);
-        AdjacencyList alDfs = new AdjacencyList(edgeListDfsDirected); // create a new adjacency list
-        LinkedList<Vertex>[] alDfsL = alDfs.exposeAdjList();
+        /* DEPTH FIRST SEARCH DIRECTED */
+        DepthFirstSearch DFSDIR = new DepthFirstSearch(gDirected);
 
-        DepthFirstSearch DFS = new DepthFirstSearch();
-        //dfsDirected.depthSearch();
+        /* NORMAL DEPTH SEARCH */
+        // DFSDIR.depthSearch();
 
         /* TOPOLOGICAL SORT */
-        LinkedList<Vertex> topSort = DFS.topSort(alDfsL);
-        DFS.printTopSort(topSort);
+        DFSDIR.printTopSort(DFSDIR.topSort());
 
         /* SCC */
-        EdgeList edgeListScc = reader.readFile(args, true);
-        AdjacencyList alScc = new AdjacencyList(edgeListScc); // create a new adjacency list
+        DFSDIR.SCC(); // SCC visit of transposed graph
 
-        DFS.SCC(alScc.exposeAdjList()); // SCC visit of transposed graph
-
-        EdgeList edgeListKruskal = reader.readFile(args, false);
+        /* KRUSKAL */
         Kruskal kruskal = new Kruskal();
-        kruskal.printKruskal((kruskal.MSTKruskal(edgeListKruskal)));
+        if(gUndirected.hasWeights()) kruskal.printKruskal((kruskal.MSTKruskal(gUndirected)));
 
-        EdgeList edgeListPrim = reader.readFile(args, false);
-        AdjacencyList alPrim = new AdjacencyList(edgeListPrim);
+        /* PRIM */
         Prim prim = new Prim();
-        LinkedList<Vertex> primSet = prim.MSTPrim(edgeListPrim, alPrim, 1);
-        prim.printPrim(primSet);
+        if(gUndirected.hasWeights()) prim.printPrim(prim.MSTPrim(gUndirected, 1));
+
+        /* BELLMAN FORD */
+
+        /* DJIKSTRA */
+
+        /* FLOYD-WARSHALL */
 
         long elapsed = System.nanoTime() - t1;
         double seconds = elapsed / 1000000000;

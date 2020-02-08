@@ -3,10 +3,7 @@ package org.algos;
 
 import java.util.*;
 
-import org.ds.AdjacencyList;
-import org.ds.Edge;
-import org.ds.EdgeList;
-import org.ds.Vertex;
+import org.ds.*;
 
 
 /* Prim MST
@@ -45,20 +42,24 @@ public class Prim {
      *              v.pi = u
      *              v.key = w(u,v)
      */
-     public LinkedList<Vertex> MSTPrim(EdgeList edgeList, AdjacencyList adjList, int rootId){
+     public LinkedList<Vertex> MSTPrim(Graph g, int rootId){
          System.out.println("\nMST PRIM TRAVERSAL...");
-         LinkedList<Vertex>[] al = adjList.exposeAdjList();
+         LinkedList<Vertex>[] al = g.exposeAdjList();
          LinkedList<Vertex> mstSet = new LinkedList<Vertex>();
          Vertex root = null;
          // create p-queue with (key) comparator including all vertices not added to MST yet
-         PriorityQueue<Vertex> pq = new PriorityQueue<>(edgeList.getVertexCount(), Vertex.getComparator());
+         PriorityQueue<Vertex> pq = new PriorityQueue<>(g.getVertexCount(), Vertex.getComparator());
          for(int i = 1; i < al.length; i++){
              Vertex vertex = al[i].getFirst();
              if(vertex.getId() == rootId) {
                  vertex.setKey(0);
+                 vertex.setParent(null);
                  root = vertex;
              }
-             else vertex.setKey(99999);
+             else {
+                 vertex.setKey(99999);
+                 vertex.setParent(null);
+             }
              pq.add(vertex);
          }
          while(pq.size() != 0){ // pick vertex with lowest key value not added to mstSet yet
@@ -68,7 +69,7 @@ public class Prim {
              for(int i = 0; i < al[current.getId()].size(); i++) { // go through all adjacent vertices
                  Vertex adjVertex = al[current.getId()].get(i); // a vertex (v) connected to current (u)
                  // if v element of Q && w(u,v) < v.key
-                 Edge w = edgeList.findEdge(current, adjVertex);
+                 Edge w = g.findEdge(current, adjVertex); // FIXME: How to obtain edge reference from adjacency list w/o traversing edge list
                  if(adjVertex != null && w != null){
                      if (pq.contains(adjVertex) && w.getWeight() < adjVertex.getKey()) {
                          System.out.println("\tUPDATED ADJACENT [V" + adjVertex.getId() + "] WITH KEY: " + w.getWeight());

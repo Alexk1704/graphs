@@ -17,6 +17,7 @@ package org.algos;
  * Overall runtime is O(V+E) but E grows larger than V!
  */
 
+import org.ds.Graph;
 import org.ds.Vertex;
 
 import java.util.ArrayList;
@@ -30,8 +31,8 @@ public class BreadthFirstSearch {
     final LinkedList<Vertex>[] adjList;
     Integer distance;
 
-    public BreadthFirstSearch(LinkedList<Vertex>[] adjList){
-        this.adjList = adjList;
+    public BreadthFirstSearch(Graph g){
+        this.adjList = g.exposeAdjList();
         this.distance = 0;
     }
 
@@ -43,13 +44,25 @@ public class BreadthFirstSearch {
     public Vertex initTree(int s_id){
         workingQueue = new Stack();
         Vertex source = null;
-        // skipping
         if(s_id < 1 || s_id > adjList.length+1){
             System.err.println("Check source node index!");
         } else {
-            source = adjList[s_id].getFirst();
-            source.setFlag(Vertex.Flag.BLACK); // set to black
-            source.setDistance(distance);
+            for(int i = 1; i < adjList.length; i++) {
+                for (Vertex v : adjList[i]) {
+                    if (v.getId() == s_id) {
+                        source = v;
+                        source.setFlag(Vertex.Flag.BLACK);
+                        source.setDistance(distance);
+                        source.setParent(null);
+                        source.wipeChildren();
+                    } else {
+                        v.setFlag(Vertex.Flag.WHITE);
+                        v.setDistance(null);
+                        v.setParent(null);
+                        v.wipeChildren();
+                    }
+                }
+            }
         }
         workingQueue.push(source); // push to working queue
         return source;

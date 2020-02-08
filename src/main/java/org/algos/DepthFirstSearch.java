@@ -1,6 +1,7 @@
 package org.algos;
 
 
+import org.ds.Graph;
 import org.ds.Vertex;
 
 import java.util.LinkedList;
@@ -22,12 +23,29 @@ import java.util.Stack;
  */
 public class DepthFirstSearch {
     Integer time;
-    public DepthFirstSearch(){ }
+    LinkedList<Vertex>[] adjList;
+
+    public DepthFirstSearch(Graph g){
+        this.adjList = g.exposeAdjList();
+    }
+
+    /* reset adj list */
+    private void initAdjList(){
+        for(int i = 1; i < adjList.length; i++) {
+            for (Vertex v : adjList[i]) {
+                v.setFlag(Vertex.Flag.WHITE);
+                v.setParent(null);
+                v.setDiscoveryTime(null);
+                v.setFinishTime(null);
+            }
+        }
+    }
 
     /* All nodes white (0), predecessor: NULL ptr, time var (global): 0 */
-    public void depthSearch(LinkedList<Vertex>[] adjList){
-        // nodes already white, and predecessor is NULL by default
+    public void depthSearch(){
+        initAdjList();
         time = 0;
+        System.out.println("\nDEPTH SEARCH (DIGRAPH):\n");
         for(int i = 1; i < adjList.length; i++){
             if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
                 visit(adjList, adjList[i], null, null, false);
@@ -93,9 +111,10 @@ public class DepthFirstSearch {
      * 3. return that list
      * A directed graph G is acyclic exactly then when DFS gives us no back edges
      */
-    public LinkedList<Vertex> topSort(LinkedList<Vertex>[] adjList){
+    public LinkedList<Vertex> topSort(){
         LinkedList<Vertex> topSort;
         topSort = new LinkedList<>();
+        initAdjList();
         time = 0;
         for(int i = 1; i < adjList.length; i++){
             if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
@@ -122,9 +141,10 @@ public class DepthFirstSearch {
      *  3. call DFS(G'), work through neighbouring nodes in descending order of v.f
      *  4. return every tree of DFS forest (from 3.) as SCC
      */
-    public void SCC(LinkedList<Vertex>[] adjList){
+    public void SCC(){
         System.out.println("STRONGLY CONNECTED COMPONENTS (DIGRAPH):");
         Stack s = new Stack(); // Create empty stack S
+        initAdjList(); // reset adj list
         time = 0;
         System.out.println("DFS TRAVERSAL FOR G:");
         for(int i = 1; i < adjList.length; i++){ // DFS traversal of graph G
