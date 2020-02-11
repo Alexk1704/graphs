@@ -17,6 +17,7 @@ public class Graph {
     private int incColSize;
 
     private int[][] adjMat;
+    private Integer[][] weightAdjMat;
     private int adjRowSize;
     private int adjColSize;
 
@@ -75,7 +76,7 @@ public class Graph {
     public Vertex[] getVertexArr(){ return this.vertexArr; }
 
     public String convertDOT(boolean isDirected){
-        System.out.println("\nPrinting DOT format...");
+        System.out.println("\nDOT FORMAT");
         if(isDirected) {
             dotFormat = "digraph {\n";
             for(int i = 0; i < edgeList.size(); i++){
@@ -95,14 +96,14 @@ public class Graph {
     }
 
     public void printEdgeList(boolean directed) {
-        System.out.println("\nPrinting Edge List...");
+        System.out.println("\nEDGELIST");
         String arrow = "";
-        if(directed) arrow = "->";
-                else arrow = "-";
+        if(directed) arrow = "-> ";
+                else arrow = "- ";
         for (int i = 0; i < edgeList.size(); i++) {
             Edge e = edgeList.get(i);
             System.out.println("Edge " + e.getId() + "\t"
-                    + "v" + e.getFromV().getId() + " -" + e.getWeight() + arrow + "v" + e.getToV().getId());
+                    + "v" + e.getFromV().getId() + " -(" + e.getWeight() + ")" + arrow + "v" + e.getToV().getId());
         }
     }
 
@@ -147,7 +148,7 @@ public class Graph {
     }
 
     public void printIncMatrix(){
-        System.out.println("\nPrinting Incidence Matrix...");
+        System.out.println("\nINCIDENCE MATRIX");
         String colIndexes = "";
         for(int i = 1; i < incColSize; i++)
             colIndexes = colIndexes + "e" + i + "\t";
@@ -176,10 +177,12 @@ public class Graph {
     private void createAdjMatrix(){
         adjRowSize = adjColSize = vertexCount+1; // +1 bc we index v,e from 1
         adjMat = new int[adjRowSize][adjColSize];
+        weightAdjMat = new Integer[adjRowSize][adjColSize];
         // init with 0s
         for(int i = 0; i < adjRowSize; i++){
             for(int j = 0; j < adjColSize; j++){
                 adjMat[i][j] = 0;
+                weightAdjMat[i][j] = null;
             }
         }
         for(int i = 0; i < edgeList.size(); i++){
@@ -188,6 +191,12 @@ public class Graph {
 
             adjMat[fromV.getId()][toV.getId()] = 1;
             adjMat[toV.getId()][fromV.getId()] = 1;
+
+            weightAdjMat[fromV.getId()][toV.getId()] = edgeList.get(i).getWeight();
+            weightAdjMat[fromV.getId()][fromV.getId()] = 0;
+            weightAdjMat[toV.getId()][toV.getId()] = 0;
+            if(!isDirected)
+                weightAdjMat[toV.getId()][fromV.getId()] = edgeList.get(i).getWeight();
         }
     }
 
@@ -196,7 +205,7 @@ public class Graph {
     }
 
     public void printAdjMatrix(){
-        System.out.println("\nPrinting Adjacency Matrix...");
+        System.out.println("\nADJACENCY MATRIX");
         String colIndexes = "";
         for(int i = 1; i < adjColSize; i++)
             colIndexes = colIndexes + "v" + i + "\t";
@@ -209,6 +218,12 @@ public class Graph {
         }
     }
 
+    public Integer[][] exposeWeightAdjMatrix(){ return this.weightAdjMat; }
+
+    public int getAdjRowSize(){ return this.adjRowSize; }
+
+    public int getAdjColSize() { return this.adjColSize; }
+
     /* Graph G = (V,E)
      * Array Adj of |V| Lists
      * Adj[u] contains a list with all Vertices v, if there is an edge (u,v) e E.
@@ -218,26 +233,34 @@ public class Graph {
         adjList = new LinkedList[vertexCount+1]; // +1 again since we skip index 0....
 
         for (Edge e: edgeList) {
-            Vertex from = e.getFromV(); // create copies
-            Vertex to = e.getToV();
+            Vertex from = new Vertex(e.getFromV()); // create copies
+            Vertex to = new Vertex(e.getToV());
+
             if(adjList[from.getId()] == null){
                 adjList[from.getId()] = new LinkedList<Vertex>();
-                adjList[from.getId()].add(from); // add it as first element because we need the vertex object later
+                adjList[from.getId()].add(new Vertex(from)); // add it as first element because we need the vertex object later
             }
             if(adjList[to.getId()] == null) {
                 adjList[to.getId()] = new LinkedList<Vertex>();
-                adjList[to.getId()].add(to); // add it as first element because we need the vertex object later
+                adjList[to.getId()].add(new Vertex(to)); // add it as first element because we need the vertex object later
             }
             if(!e.isDirected()){ // Edge undirected, add adjacent vertices for both
                 adjList[from.getId()].add(to);
+                to.setEdge(e); // set edge references for nodes
                 adjList[to.getId()].add(from);
             } else { // Edge directed, so only create for one direction
                 adjList[from.getId()].add(to);
+                to.setEdge(e); // set edge references for nodes
             }
         }
     }
 
     public void printAdjList(){
+        String dir = "";
+        if(isDirected) dir = "(DIRECTED)";
+        else dir = "(UNDIRECTED)";
+        System.out.println("\nADJACENCY LIST " + dir);
+
         for(int i = 1; i < adjList.length; i++){
             System.out.print("\n[V" + i + "]: ");
             if(adjList[i] != null) {

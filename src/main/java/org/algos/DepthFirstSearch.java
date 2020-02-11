@@ -24,30 +24,31 @@ import java.util.Stack;
 public class DepthFirstSearch {
     Integer time;
     LinkedList<Vertex>[] adjList;
+    Vertex.Flag[] flags;
 
     public DepthFirstSearch(Graph g){
         this.adjList = g.exposeAdjList();
+        this.flags = new Vertex.Flag[adjList.length];
     }
 
-    /* reset adj list */
-    private void initAdjList(){
+    private void init(){
         for(int i = 1; i < adjList.length; i++) {
             for (Vertex v : adjList[i]) {
-                v.setFlag(Vertex.Flag.WHITE);
                 v.setParent(null);
                 v.setDiscoveryTime(null);
                 v.setFinishTime(null);
             }
         }
+        for(int i = 1; i < flags.length; i++) flags[i] = Vertex.Flag.WHITE;
     }
 
     /* All nodes white (0), predecessor: NULL ptr, time var (global): 0 */
     public void depthSearch(){
-        initAdjList();
+        init();
         time = 0;
         System.out.println("\nDEPTH SEARCH (DIGRAPH):\n");
         for(int i = 1; i < adjList.length; i++){
-            if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
+            if(flags[adjList[i].getFirst().getId()] == Vertex.Flag.WHITE){ // if WHITE visit
                 visit(adjList, adjList[i], null, null, false);
             }
         }
@@ -72,18 +73,18 @@ public class DepthFirstSearch {
             System.out.println("[V" + u.getId() + "]\tDISCOVERED ON STEP " + time);
             u.setDiscoveryTime(time); // set discovery time for calling vertex
         }
-        u.setFlag(Vertex.Flag.GRAY); // set colour to GRAY (discovered)
+        flags[u.getId()] = Vertex.Flag.GRAY; // set colour to GRAY (discovered)
         if(scc)
             System.out.print("[V" + u.getId() + "]\t");
         for(int i = 0; i < adj.size(); i++){ // explore edge (u, v), skip first since its u node
             // skip first since its calling node
-            if(adj.get(i).getFlag() == Vertex.Flag.WHITE){ // adjacent vertex white?
+            if(flags[adj.get(i).getId()] == Vertex.Flag.WHITE){ // adjacent vertex white?
                 if(!scc)
                     adj.get(i).setParent(u); // set its parent
                 visit(adjList, adjList[adj.get(i).getId()], s, topSort, scc); // recursive call
             }
         }
-        u.setFlag(Vertex.Flag.BLACK); // set to black after return of control
+        flags[u.getId()] = Vertex.Flag.BLACK; // set to black after return of control
         if(s != null) {
             // after calling recursive DFS for adjacent vertices of a vertex, push vertex to stack (sorted by f(u))
             s.push(u);
@@ -114,10 +115,10 @@ public class DepthFirstSearch {
     public LinkedList<Vertex> topSort(){
         LinkedList<Vertex> topSort;
         topSort = new LinkedList<>();
-        initAdjList();
+        init();
         time = 0;
         for(int i = 1; i < adjList.length; i++){
-            if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
+            if(flags[adjList[i].getFirst().getId()] == Vertex.Flag.WHITE){ // if WHITE visit
                 visit(adjList, adjList[i], null, topSort, false);
             }
         }
@@ -144,11 +145,11 @@ public class DepthFirstSearch {
     public void SCC(){
         System.out.println("STRONGLY CONNECTED COMPONENTS (DIGRAPH):");
         Stack s = new Stack(); // Create empty stack S
-        initAdjList(); // reset adj list
+        init(); // reset adj list
         time = 0;
         System.out.println("DFS TRAVERSAL FOR G:");
         for(int i = 1; i < adjList.length; i++){ // DFS traversal of graph G
-            if(adjList[i].getFirst().getFlag() == Vertex.Flag.WHITE){ // if WHITE visit
+            if(flags[adjList[i].getFirst().getId()] == Vertex.Flag.WHITE){ // if WHITE visit
                 visit(adjList, adjList[i], s, null, false);
             }
         }
@@ -159,7 +160,7 @@ public class DepthFirstSearch {
         System.out.println("PRINTING STRONGLY CONNECTED COMPONENTS FOR G'");
         while(!s.empty()) { // One by one pop vertex from S while S not empty
             Vertex v = (Vertex) s.pop();
-            if(v.getFlag() == Vertex.Flag.WHITE) { // Let popped vertex be v, take v as source and do DFS
+            if(flags[v.getId()] == Vertex.Flag.WHITE) { // Let popped vertex be v, take v as source and do DFS
                 visit(transposedAdj, transposedAdj[v.getId()], null, null, true);
                 System.out.println();
             }
@@ -176,17 +177,18 @@ public class DepthFirstSearch {
                     transposedAdjList[adjList[i].get(j).getId()] = new LinkedList<Vertex>();
 
                     Vertex v = adjList[adjList[i].get(j).getId()].getFirst();
-                    v.setFlag(Vertex.Flag.WHITE);
+                    flags[v.getId()] = Vertex.Flag.WHITE;
                     transposedAdjList[adjList[i].get(j).getId()].add(v);
                 }
                 if(transposedAdjList[i] == null){
                     transposedAdjList[i] = new LinkedList<Vertex>();
+
                     Vertex v = adjList[i].getFirst();
-                    v.setFlag(Vertex.Flag.WHITE);
+                    flags[v.getId()] = Vertex.Flag.WHITE;
                     transposedAdjList[i].addFirst(v);
                 }
                 Vertex v = adjList[i].getFirst();
-                v.setFlag(Vertex.Flag.WHITE);
+                flags[v.getId()] = Vertex.Flag.WHITE;
                 transposedAdjList[adjList[i].get(j).getId()].add(v);
             }
         }

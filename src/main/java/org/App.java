@@ -21,7 +21,7 @@ public class App {
     private static Reader reader;
 
     public static void main( String[] args ) throws IOException {
-        logger.trace("Starting application.."); // Set up simple config that logs on console
+        logger.trace("Starting application..."); // Set up simple config that logs on console
         long t1 = System.nanoTime();
 
         /* DATA STRUCTURE SECTION */
@@ -45,21 +45,14 @@ public class App {
         gUndirected.printEdgeList(false);
 
         gDirected.printIncMatrix();
-        gUndirected.printIncMatrix();
-
         gDirected.printAdjMatrix();
-        gUndirected.printAdjMatrix();
-
-        System.out.println("\n\nPrinting Adjacency List (directed)...");
         gDirected.printAdjList();
 
-        System.out.println("\nPrinting Adjacency List (undirected)...");
         gUndirected.printAdjList();
-
-        System.out.println("\n\nDone printing data structures...\n");
+        System.out.println("\n\n[INFO]\tDONE CREATING DATA STRUCTURES\n");
 
         /* ALGORITHM SECTION */
-        System.out.println("Starting algorithm section...");
+        System.out.println("[INFO]\tSTARTING ALGORITHMS");
 
         /* BREADTH FIRST SEARCH UNDIRECTED*/
         BreadthFirstSearch BFS = new BreadthFirstSearch(gUndirected); // UNDIRECTED
@@ -98,15 +91,22 @@ public class App {
         /* BELLMAN FORD */
         BellmannFord bellmannFord = new BellmannFord(gDirected, 1);
         boolean bf = bellmannFord.bellmannFord(1);
-        bellmannFord.printShortestPath(3);
+        if(bf) System.out.println("\nBELLMAN-FORD HAD NO NEGATIVE CYCLE!");
+        bellmannFord.printShortestPath();
 
-        /* DJIKSTRA */
+        /* DIJKSTRA */
+        Dijkstra dijkstra = new Dijkstra(gDirected, 1);
+        dijkstra.dijkstra();
+        dijkstra.printShortestPath();
 
         /* FLOYD-WARSHALL */
+        FloydWarshall floyd = new FloydWarshall(gDirected);
+        Integer[][] resultMat = floyd.floydwarshall();
+        floyd.printMat(resultMat);
 
         long elapsed = System.nanoTime() - t1;
         double seconds = elapsed / 1000000000;
-        System.out.println("\nSeconds elapsed: " + seconds);
+        System.out.println("\n[INFO]\tPROGRAM TOOK THIS LONG (s): " + seconds);
         logger.trace("Quiting application...");
     }
 }

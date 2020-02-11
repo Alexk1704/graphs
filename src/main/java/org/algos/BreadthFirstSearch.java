@@ -30,10 +30,12 @@ public class BreadthFirstSearch {
     Stack workingQueue;
     final LinkedList<Vertex>[] adjList;
     Integer distance;
+    Vertex.Flag[] flags;
 
     public BreadthFirstSearch(Graph g){
         this.adjList = g.exposeAdjList();
         this.distance = 0;
+        this.flags = new Vertex.Flag[adjList.length];
     }
 
     /*
@@ -51,18 +53,18 @@ public class BreadthFirstSearch {
                 for (Vertex v : adjList[i]) {
                     if (v.getId() == s_id) {
                         source = v;
-                        source.setFlag(Vertex.Flag.BLACK);
                         source.setDistance(distance);
                         source.setParent(null);
                         source.wipeChildren();
                     } else {
-                        v.setFlag(Vertex.Flag.WHITE);
                         v.setDistance(Integer.MAX_VALUE);
                         v.setParent(null);
                         v.wipeChildren();
                     }
                 }
             }
+            for(int i = 1; i < flags.length; i++) flags[i] = Vertex.Flag.WHITE;
+            flags[s_id] = Vertex.Flag.BLACK;
         }
         workingQueue.push(source); // push to working queue
         return source;
@@ -82,11 +84,10 @@ public class BreadthFirstSearch {
         while(!workingQueue.empty()) {
             current = (Vertex) workingQueue.pop();
             for (Vertex v : adjList[current.getId()]) {
-                if (v.getFlag() == Vertex.Flag.BLACK) {/* do nothing */}
+                if (flags[v.getId()] == Vertex.Flag.BLACK) {/* do nothing */}
                 // also first vertex in linked list is vertex we are referencing by index, so skip it
                 else {
-                    v.setFlag(Vertex.Flag.BLACK); // visited neighbouring node
-                    adjList[v.getId()].getFirst().setFlag(Vertex.Flag.BLACK); // hax
+                    flags[v.getId()] = Vertex.Flag.BLACK; // visited neighbouring node
                     v.setDistance(current.getDistance()+1); // increment distance
                     v.setParent(current);
                     System.out.println("[V" + v.getId() + "]\t" + v +  "\tVISITED\n\t\tSETTING THE PARENT @[V"

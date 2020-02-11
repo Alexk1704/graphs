@@ -69,13 +69,15 @@ public class Prim {
              for(int i = 0; i < al[current.getId()].size(); i++) { // go through all adjacent vertices
                  Vertex adjVertex = al[current.getId()].get(i); // a vertex (v) connected to current (u)
                  // if v element of Q && w(u,v) < v.key
-                 Edge w = g.findEdge(current, adjVertex); // FIXME: How to obtain edge reference from adjacency list w/o traversing edge list
+                 Edge w = al[current.getId()].get(i).getEdge(); // get edge reference of adjacent vertex (v) connected to (u)
+                 //Edge w = g.findEdge(current, adjVertex);
+                 Vertex v = al[adjVertex.getId()].getFirst(); // need to always reference same object, since we made copies to save edge references
                  if(adjVertex != null && w != null){
-                     if (pq.contains(adjVertex) && w.getWeight() < adjVertex.getKey()) {
-                         System.out.println("\tUPDATED ADJACENT [V" + adjVertex.getId() + "] WITH KEY: " + w.getWeight());
-                         adjVertex.setParent(current); // v.pred = u
-                         if(pq.remove(adjVertex)) pq.add(adjVertex); // have to remove and re-add to ensure priority sorting
-                         adjVertex.setKey(w.getWeight()); // v.key = w(u,v)
+                     if (pq.contains(v) && w.getWeight() < v.getKey()) {
+                         System.out.println("\tUPDATED ADJACENT [V" + v.getId() + "] WITH KEY: " + w.getWeight());
+                         v.setParent(current); // v.pred = u
+                         if(pq.remove(v)) pq.add(v); // have to remove and re-add to ensure priority sorting
+                         v.setKey(w.getWeight()); // v.key = w(u,v)
                      }
                  }
              }

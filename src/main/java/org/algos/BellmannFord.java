@@ -5,23 +5,23 @@ import org.ds.Graph;
 import org.ds.Vertex;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class BellmannFord {
 
     private Graph g;
-    private Vertex[] vArr;
-    private ArrayList<Edge> edgeList;
+    private LinkedList<Vertex>[] adjList;
+    private Integer source;
 
-
-    /* BELLMANN FORD
+    /* BELLMANN-FORD
      * Calculate cost of shortest paths from a source node to all other nodes
      * Iteratively correct from bad cost estimation until we found a good one
      */
     public BellmannFord(Graph g, int source){
         this.g = g;
-        edgeList = g.returnEdgeList();
-        vArr = g.getVertexArr();
-        initSingleSource(source);
+        this.source = source;
+        adjList = g.exposeAdjList();
+        initSingleSource();
     }
 
     /* Init-Single-Source(G, s)
@@ -30,11 +30,11 @@ public class BellmannFord {
      *      v.pred = nil
      * s.d = 0
      */
-    private int initSingleSource(int source){
-        for(int i = 1; i < vArr.length; i++){
-            vArr[i].setDistance(Integer.MAX_VALUE);
-            vArr[i].setParent(null);
-            if(vArr[i].getId() == source) vArr[i].setDistance(0);
+    private int initSingleSource(){
+        for(int i = 1; i < adjList.length; i++){
+            adjList[i].getFirst().setDistance(Integer.MAX_VALUE);
+            adjList[i].getFirst().setParent(null);
+            if(adjList[i].getFirst().getId() == source) adjList[i].getFirst().setDistance(0);
         }
         return source;
     }
@@ -50,23 +50,30 @@ public class BellmannFord {
      *  return TRUE
      */
     public boolean bellmannFord(int source){
-        for(int i = 2; i < vArr.length; i++){ // n-1 phases
-            for(Edge e : edgeList){
-                Vertex u = e.getFromV();
-                Vertex v = e.getToV();
-                int w = e.getWeight();
-                System.out.println("u: " + u.getId() + " -> v: " + v.getId() + " (weight: " + w + ")");
-                relax(u, v, w);
+        System.out.println("\nBELLMAN-FORD SHORTEST PATH ALGORITHM (DIGRAPH)");
+        for(int i = 2; i < adjList.length; i++){ // n-1 phases
+            System.out.println("\nPHASE " + (i-1));
+            for(int j = 1; j < adjList.length; j++){
+                for(int k = 1; k < adjList[j].size(); k++){
+                    Vertex u = adjList[j].getFirst();
+                    Vertex v = adjList[adjList[j].get(k).getId()].getFirst();
+                    int w = adjList[j].get(k).getEdge().getWeight();
+                    System.out.println("RELAX ON EDGE [U" + u.getId() + "] --(" + w + ")-> [V" + v.getId() + "]");
+                    relax(u, v, w);
+                }
             }
         }
-        for(int i = 1; i < vArr.length; i++){
-            for(Edge e : edgeList){
-                Vertex u = e.getFromV();
-                Vertex v = e.getToV();
-                int w = e.getWeight();
-                if(u.getDistance() != Integer.MAX_VALUE && v.getDistance() > u.getDistance() + w)
-                    return false;
-
+        for(int i = 1; i < adjList.length; i++){
+            for(int j = 1; j < adjList.length; j++) {
+                for (int k = 1; k < adjList[j].size(); k++) {
+                    Vertex u = adjList[j].getFirst();
+                    Vertex v = adjList[adjList[j].get(k).getId()].getFirst();
+                    int w = adjList[j].get(k).getEdge().getWeight();
+                    if (u.getDistance() != Integer.MAX_VALUE && v.getDistance() > u.getDistance() + w) {
+                        System.out.println("\nNEGATIVE CYCLE DETECTED!!!!");
+                        return false;
+                    }
+                }
             }
         }
         return true;
@@ -85,20 +92,14 @@ public class BellmannFord {
         if(u.getDistance() != Integer.MAX_VALUE && v.getDistance() > u.getDistance() + weight){
             v.setDistance(u.getDistance() + weight);
             v.setParent(u);
-            System.out.println("Setting new distance for v: " + u.getDistance() + " + " + weight);
+            System.out.println("\t[V"+ v.getId() + "] NEW DISTANCE: (" + u.getDistance() + " + " + weight + ")");
         }
     }
 
-    public void printShortestPath(int node){
-        if(vArr[node].getParent() != null) {
-            System.out.print("V[" + vArr[node].getParent().getId() + " (distance: "+ vArr[node].getDistance() + "] ->");
-            printShortestPath(vArr[node].getParent().getId());
+    public void printShortestPath(){
+        System.out.println("\nBELLMANN-FORD SHORTEST PATH FOR SOURCE VERTEX [" + source + "]");
+        for(int i = 1; i < adjList.length; i++){
+           System.out.println("V[" + adjList[i].getFirst().getId() + "]\tDISTANCE: " + adjList[i].getFirst().getDistance());
         }
-        /*
-                System.out.println("Vertex Distance from Source");
-                 for (int i = 0; i < V; ++i)
-                   System.out.println(i + "\t\t" + dist[i]);
-    }
-         */
     }
 }

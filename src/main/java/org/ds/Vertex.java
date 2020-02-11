@@ -16,6 +16,7 @@ public class Vertex {
     private Integer discovered; // discovery time (DFS)
     private Integer finished; // finishing time (DFS)
     private Integer key; // key (Prim)
+    private Edge edge; // edge reference
 
     private Vertex parent; // reference to parent node
     private ArrayList<Vertex> children;
@@ -33,6 +34,7 @@ public class Vertex {
         this.finished = null;
         this.key = null;
         this.children = new ArrayList<Vertex>();
+        this.edge = null;
     }
 
     public static final Comparator<Vertex> getComparator(){
@@ -40,6 +42,16 @@ public class Vertex {
             @Override
             public int compare(Vertex v1, Vertex v2) {
                 return v1.key.compareTo(v2.key);
+            }
+        };
+        return comp;
+    }
+
+    public static final Comparator<Vertex> getDistanceComp(){
+        Comparator comp = new Comparator<Vertex>(){
+            @Override
+            public int compare(Vertex v1, Vertex v2) {
+                return v1.distance.compareTo(v2.distance);
             }
         };
         return comp;
@@ -116,4 +128,9 @@ public class Vertex {
     public void setKey(Integer key){
         this.key = key;
     }
+
+    public void setEdge(Edge edge) { this.edge = edge; }
+
+    public Edge getEdge() { return this.edge; }
+
 }
