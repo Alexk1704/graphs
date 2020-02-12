@@ -40,7 +40,7 @@ public class FloydWarshall {
      * We are looking if we can get there through adjacent edges with a lower cost
      */
     private Integer min(Integer ij, Integer ik, Integer kj){
-        System.out.println("\tMIN ON [ij: " + ij +"\tik: "+ ik +"\tkj: "+ kj + "]");
+        //System.out.println("\tMIN ON [ij: " + ij +"\tik: "+ ik +"\tkj: "+ kj + "]");
         if(ik == null || kj == null) return ij;
         else {
             if (ij == null) {

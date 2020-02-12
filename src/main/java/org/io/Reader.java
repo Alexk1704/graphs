@@ -12,12 +12,12 @@ import java.io.*;
 public class Reader {
     private static final Logger logger = LogManager.getLogger(App.class);
 
-    public Graph readFile(final String args[], boolean isDirected) {
+    public Graph readFile(final String path, boolean isDirected) {
         File input = null;
         Graph g = null;
 
-        if (args.length != 0 && args != null) {
-            input = new File(args[0]);
+        if (path.length() != 0 && path != null) {
+            input = new File(path);
         } else {
             logger.error("Can't open file from this path...");
             System.exit(-1);

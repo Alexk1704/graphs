@@ -26,8 +26,8 @@ public class App {
 
         /* DATA STRUCTURE SECTION */
         reader = new Reader();
-        Graph gDirected = reader.readFile(args, true);
-        Graph gUndirected = reader.readFile(args, false);
+        Graph gDirected = reader.readFile("./input/primkruskal.txt", true);
+        Graph gUndirected = reader.readFile("./input/primkruskal.txt", false);
 
         /* print .png of graphs via gViz */
         GraphViz gViz = new GraphViz();
@@ -54,7 +54,7 @@ public class App {
         /* ALGORITHM SECTION */
         System.out.println("[INFO]\tSTARTING ALGORITHMS");
 
-        /* BREADTH FIRST SEARCH UNDIRECTED*/
+        /* BREADTH FIRST SEARCH UNDIRECTED */
         BreadthFirstSearch BFS = new BreadthFirstSearch(gUndirected); // UNDIRECTED
         Vertex bfsRoot = BFS.initTree(1); // vertex with id: 1 is source/root
         BFS.buildTree(); // builds BFS tree
@@ -62,7 +62,7 @@ public class App {
         System.out.println("BUILDING BFS TREE (UNDIRECTED GRAPH) AND SHOWING PATH DONE...\n");
 
         /* BREADTH FIRST SEARCH DIRECTED */
-        BreadthFirstSearch BFSDIR = new BreadthFirstSearch(gDirected); // DIRECTED
+        BreadthFirstSearch BFSDIR = new BreadthFirstSearch(gDirected);
         Vertex bfsRootDirected = BFSDIR.initTree(1);
         BFSDIR.buildTree();
         BFSDIR.showPath(bfsRootDirected, BFSDIR.searchTree(bfsRootDirected, 2));
@@ -89,20 +89,26 @@ public class App {
         if(gUndirected.hasWeights()) prim.printPrim(prim.MSTPrim(gUndirected, 1));
 
         /* BELLMAN FORD */
-        BellmannFord bellmannFord = new BellmannFord(gDirected, 1);
-        boolean bf = bellmannFord.bellmannFord(1);
-        if(bf) System.out.println("\nBELLMAN-FORD HAD NO NEGATIVE CYCLE!");
-        bellmannFord.printShortestPath();
+        if(gDirected.hasWeights()) {
+            BellmannFord bellmannFord = new BellmannFord(gDirected, 1);
+            boolean bf = bellmannFord.bellmannFord(1);
+            if (bf) System.out.println("\nBELLMAN-FORD HAD NO NEGATIVE CYCLE!");
+            bellmannFord.printShortestPath();
+        }
 
         /* DIJKSTRA */
-        Dijkstra dijkstra = new Dijkstra(gDirected, 1);
-        dijkstra.dijkstra();
-        dijkstra.printShortestPath();
+        if(gDirected.hasWeights()) {
+            Dijkstra dijkstra = new Dijkstra(gDirected, 1);
+            dijkstra.dijkstra();
+            dijkstra.printShortestPath();
+        }
 
         /* FLOYD-WARSHALL */
-        FloydWarshall floyd = new FloydWarshall(gDirected);
-        Integer[][] resultMat = floyd.floydwarshall();
-        floyd.printMat(resultMat);
+        if(gDirected.hasWeights()) {
+            FloydWarshall floyd = new FloydWarshall(gDirected);
+            Integer[][] resultMat = floyd.floydwarshall();
+            floyd.printMat(resultMat);
+        }
 
         long elapsed = System.nanoTime() - t1;
         double seconds = elapsed / 1000000000;
