@@ -1,4 +1,4 @@
-# Some implementation of graph algorithms in Java
+# Some graph algorithms in Java ...
 
 * Build & test with OpenJDK 1.11.0 for amd64
 * Used Maven 3.6.1 for project building & dependency management
